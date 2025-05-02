@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <style>
+      body {
+        background-color: #f0f0f0;
+        font-family: Arial, sans-serif;
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 20px;
+      }
+      .display-area {
+        margin-top: 30px;
+        padding: 20px;
+        background-color: white;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+      .result-item {
+        margin: 0;
+        padding: 5px;
+      }
+      .yes {
+        color: green;
+      }
+      .no {
+        color: red;
+      }
+      .button-container {
+        margin-top: 20px;
+        display: flex;
+        gap: 10px;
+      }
+      button {
+        padding: 8px 16px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        background-color: #4caf50;
+        color: white;
+      }
+      button:hover {
+        opacity: 0.9;
+      }
+      #resetBtn {
+        background-color: #f44336;
+      }
+      #copyBtn {
+        background-color: #2196f3;
+      }
+      .notification {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        background-color: #4caf50;
+        color: white;
+        padding: 12px 24px;
+        border-radius: 4px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        opacity: 0;
+        transition: opacity 0.3s ease;
+      }
+      .notification.show {
+        opacity: 1;
+      }
+    </style>
+    <!-- Add Font Awesome for copy icon -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+    />
+  </head>
+  <body>
+    <h1>Steers Maker</h1>
+    <div>
+      <input type="checkbox" id="steer-toggle-1" />
+      <label for="steer-toggle-1"
+        >General Steerability - Content Style Instructions</label
+      >
+    </div>
+    <div>
+      <input type="checkbox" id="steer-toggle-2" />
+      <label for="steer-toggle-2"
+        >General Steerability - Compositional Instruction</label
+      >
+    </div>
+    <div>
+      <input type="checkbox" id="steer-toggle-3" />
+      <label for="steer-toggle-3"
+        >General Steerability - Instruction Compliance Policy</label
+      >
+    </div>
+    <div>
+      <input type="checkbox" id="steer-toggle-4" />
+      <label for="steer-toggle-4"
+        >General Steerability - Instruction Source</label
+      >
+    </div>
+    <div>
+      <input type="checkbox" id="steer-toggle-5" />
+      <label for="steer-toggle-5">Tone Steerability - Implicit</label>
+    </div>
+    <div>
+      <input type="checkbox" id="steer-toggle-6" />
+      <label for="steer-toggle-6">Tone Steerability - Explicit</label>
+    </div>
+    <div>
+      <input type="checkbox" id="steer-toggle-7" />
+      <label for="steer-toggle-7"
+        >Formatting Steerability - Format Content With Specific Format
+        Types</label
+      >
+    </div>
+    <div>
+      <input type="checkbox" id="steer-toggle-8" />
+      <label for="steer-toggle-8"
+        >Formatting Steerability - Format Content in Specific Document
+        Formats</label
+      >
+    </div>
+    <div>
+      <input type="checkbox" id="steer-toggle-9" />
+      <label for="steer-toggle-9"
+        >Formatting Steerability - Follow Formatting Style Guides</label
+      >
+    </div>
+    <div>
+      <input type="checkbox" id="steer-toggle-10" />
+      <label for="steer-toggle-10"
+        >Formatting Steerability - Follow Language-Specific Formatting</label
+      >
+    </div>
+
+    <div class="display-area" id="results">
+      <!-- Results will be displayed here -->
+    </div>
+
+    <div class="button-container">
+      <button id="resetBtn">Reset All</button>
+      <button id="copyBtn"><i class="fas fa-copy"></i> Copy Results</button>
+    </div>
+
+    <div class="notification" id="notification">Copied to clipboard!</div>
+
+    <script>
+      // Function to update the display
+      function updateDisplay() {
+        const resultsDiv = document.getElementById("results");
+        resultsDiv.innerHTML = ""; // Clear previous results
+
+        // Get all checkboxes and their labels
+        const checkboxes = document.querySelectorAll('input[type="checkbox"]');
+
+        checkboxes.forEach((checkbox) => {
+          const label = document.querySelector(
+            `label[for="${checkbox.id}"]`
+          ).textContent;
+          const resultItem = document.createElement("div");
+          resultItem.className = "result-item";
+
+          const status = checkbox.checked ? "YES" : "NO";
+          const statusClass = checkbox.checked ? "yes" : "no";
+
+          resultItem.innerHTML = `<span class="${statusClass}">${status}</span> - ${label}`;
+          resultsDiv.appendChild(resultItem);
+        });
+      }
+
+      // Add event listeners to all checkboxes
+      document
+        .querySelectorAll('input[type="checkbox"]')
+        .forEach((checkbox) => {
+          checkbox.addEventListener("change", updateDisplay);
+        });
+
+      // Reset button functionality
+      document.getElementById("resetBtn").addEventListener("click", () => {
+        document
+          .querySelectorAll('input[type="checkbox"]')
+          .forEach((checkbox) => {
+            checkbox.checked = false;
+          });
+        updateDisplay();
+      });
+
+      // Show notification function
+      function showNotification() {
+        const notification = document.getElementById("notification");
+        notification.classList.add("show");
+        setTimeout(() => {
+          notification.classList.remove("show");
+        }, 2000);
+      }
+
+      // Copy button functionality
+      document.getElementById("copyBtn").addEventListener("click", () => {
+        const results = document.getElementById("results").innerText;
+        navigator.clipboard
+          .writeText(results)
+          .then(() => {
+            showNotification();
+          })
+          .catch((err) => {
+            console.error("Failed to copy: ", err);
+          });
+      });
+
+      // Initial display
+      updateDisplay();
+    </script>
+  </body>
+</html>
