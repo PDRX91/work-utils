@@ -1,0 +1,51 @@
+.display-area {
+  margin-top: 30px;
+  padding: 20px;
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.result-item {
+  margin: 0;
+  padding: 5px;
+}
+
+.yes {
+  color: #4caf50;
+  font-weight: 600;
+}
+
+.no {
+  color: #f44336;
+  font-weight: 600;
+}
+
+.notification {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  background-color: #4caf50;
+  color: white;
+  padding: 12px 24px;
+  border-radius: 4px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.notification.show {
+  opacity: 1;
+}
+
+/* Checkbox styles */
+input[type="checkbox"] {
+  margin-right: 10px;
+}
+
+label {
+  cursor: pointer;
+  display: inline-block;
+  margin: 8px 0;
+  color: #2c3e50;
+}
