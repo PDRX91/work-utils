@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>JSON Visualizer</title>
+    <link rel="stylesheet" href="css/base.css" />
+    <link rel="stylesheet" href="css/nav.css" />
+    <link rel="stylesheet" href="css/buttons.css" />
+    <link rel="stylesheet" href="css/json-visualizer.css" />
+  </head>
+  <body>
+    <main class="container">
+      <div class="content">
+        <h1>JSON Visualizer</h1>
+
+        <label for="jsonInput">Paste your JSON here:</label>
+        <textarea
+          id="jsonInput"
+          rows="10"
+          placeholder="Enter JSON data..."
+          value=""
+        ></textarea>
+        <button id="submitJson" class="btn primary" disabled>
+          Visualize JSON
+        </button>
+
+        <h2>Visualized Output:</h2>
+        <div id="jsonOutput">
+          <!-- JSON structure will be rendered here -->
+          <p>
+            Paste your JSON above and click &quot;Visualize JSON&quot; to see
+            the output.
+          </p>
+        </div>
+      </div>
+    </main>
+
+    <script src="js/json-visualizer.js"></script>
+    <script src="js/nav.js"></script>
+  </body>
+</html>

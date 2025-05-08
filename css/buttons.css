@@ -1,38 +1,38 @@
 .button-grid {
   display: flex;
   flex-wrap: wrap;
+  justify-content: center;
   gap: 1.5rem;
   margin-top: 2rem;
-  justify-content: center;
 }
 
 .utility-button {
   display: block;
-  background-color: #3498db;
-  color: white;
-  text-decoration: none;
-  padding: 1.5rem;
-  border-radius: 8px;
-  text-align: center;
-  font-weight: 600;
-  font-size: 1.1rem;
   transition: all 0.3s ease;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  max-width: 300px;
+  border-radius: 8px;
+  background-color: #3498db;
+  padding: 1.5rem;
   width: 100%;
+  max-width: 300px;
+  color: white;
+  font-weight: 600;
+  font-size: 1.1rem;
+  text-align: center;
+  text-decoration: none;
 }
 
 .utility-button:hover {
-  background-color: #2980b9;
   transform: translateY(-3px);
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  background-color: #2980b9;
 }
 
 .button-container {
-  margin-top: 20px;
   display: flex;
-  gap: 10px;
   justify-content: center;
+  gap: 10px;
+  margin-top: 20px;
 }
 
 button.primary {
@@ -45,4 +45,9 @@ button.danger {
 
 button.info {
   background-color: #2196f3;
+}
+
+button:disabled {
+  cursor: not-allowed;
+  background-color: #ccc;
 }

@@ -2,6 +2,7 @@ document.addEventListener("DOMContentLoaded", function () {
   const navItems = [
     { name: "Home", href: "index.html" },
     { name: "Copy Steers", href: "copy-steers.html" },
+    { name: "JSON Visualizer", href: "json-visualizer.html" },
   ];
 
   const navbar = document.createElement("nav");
