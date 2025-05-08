@@ -55,6 +55,8 @@ document.addEventListener("DOMContentLoaded", () => {
         return "Unmatched IF Criteria (Not Linked to Prompt)";
       case "unmatched_acc_criteria_not_linked_to_if":
         return "Unmatched Accuracy Criteria (Not Linked to IF Criteria)";
+      case "if_criteria_in_chain_missing_acc_criteria":
+        return "Unmatched IF Criteria (Not Linked to Accuracy Criteria)";
       default:
         return key
           .replace(/([A-Z])/g, " $1") // camelCase to Title Case
@@ -94,14 +96,14 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function createList(items) {
-    const ul = document.createElement("ol");
-    ul.classList.add("criteria-list");
+    const ol = document.createElement("ol");
+    ol.classList.add("criteria-list");
     items.forEach((itemText) => {
       const li = document.createElement("li");
       li.textContent = itemText;
-      ul.appendChild(li);
+      ol.appendChild(li);
     });
-    return ul;
+    return ol;
   }
 
   function buildVisualOutput(jsonData, container) {
@@ -143,25 +145,29 @@ document.addEventListener("DOMContentLoaded", () => {
               contentWrapper: ifCriterionWrapper,
             } = createCollapsibleSection(ifCriterionTitle, 2);
 
+            // Always create and append the Accuracy Criteria heading first
+            ifCriterionWrapper.appendChild(
+              createHeading(getFriendlyName("related_acc_criteria"), 4)
+            );
+
+            // Then, check for and list the criteria, or show the 'no criteria' message
             if (
               ifCriterion.related_acc_criteria &&
               Array.isArray(ifCriterion.related_acc_criteria) &&
               ifCriterion.related_acc_criteria.length > 0
             ) {
               ifCriterionWrapper.appendChild(
-                createHeading(getFriendlyName("related_acc_criteria"), 4)
-              );
-              ifCriterionWrapper.appendChild(
                 createList(ifCriterion.related_acc_criteria)
               );
-            } else if (ifCriterion.related_acc_criteria) {
+            } else {
+              // Covers cases where related_acc_criteria is missing, not an array, or an empty array
               const noAccText = document.createElement("p");
               noAccText.textContent =
                 "No Accuracy Criteria defined for this condition.";
               noAccText.classList.add("no-criteria-text");
               ifCriterionWrapper.appendChild(noAccText);
             }
-            instructionWrapper.appendChild(ifCriterionSection); // Append the whole <details> for IF criterion
+            instructionWrapper.appendChild(ifCriterionSection);
           });
         }
         picTopWrapper.appendChild(instructionSection); // Append the whole <details> for instruction
@@ -170,7 +176,7 @@ document.addEventListener("DOMContentLoaded", () => {
         container.appendChild(picTopSection);
     }
 
-    // 2. Unmatched IF Criteria
+    // 2. Unmatched IF Criteria (Not Linked to Prompt)
     if (
       jsonData.unmatched_if_criteria_not_linked_to_prompt &&
       Array.isArray(jsonData.unmatched_if_criteria_not_linked_to_prompt)
@@ -198,7 +204,35 @@ document.addEventListener("DOMContentLoaded", () => {
       container.appendChild(unmatchedIfSection);
     }
 
-    // 3. Unmatched Accuracy Criteria
+    // 3. Unmatched IF Criteria (Not Linked to Accuracy Criteria)
+    if (
+      jsonData.if_criteria_in_chain_missing_acc_criteria &&
+      Array.isArray(jsonData.if_criteria_in_chain_missing_acc_criteria)
+    ) {
+      const newSectionTitle =
+        getFriendlyName("if_criteria_in_chain_missing_acc_criteria") +
+        ` (${jsonData.if_criteria_in_chain_missing_acc_criteria.length})`;
+      const {
+        details: newUnmatchedSection,
+        contentWrapper: newUnmatchedWrapper,
+      } = createCollapsibleSection(
+        newSectionTitle,
+        0,
+        !!jsonData.if_criteria_in_chain_missing_acc_criteria.length
+      );
+      if (jsonData.if_criteria_in_chain_missing_acc_criteria.length > 0) {
+        newUnmatchedWrapper.appendChild(
+          createList(jsonData.if_criteria_in_chain_missing_acc_criteria)
+        );
+      } else {
+        const p = document.createElement("p");
+        p.textContent = "No items.";
+        newUnmatchedWrapper.appendChild(p);
+      }
+      container.appendChild(newUnmatchedSection);
+    }
+
+    // 4. Unmatched Accuracy Criteria
     if (
       jsonData.unmatched_acc_criteria_not_linked_to_if &&
       Array.isArray(jsonData.unmatched_acc_criteria_not_linked_to_if)
@@ -226,10 +260,11 @@ document.addEventListener("DOMContentLoaded", () => {
       container.appendChild(unmatchedAccSection);
     }
 
-    // 4. Other top-level properties
+    // 5. Other top-level properties
     const handledKeys = [
       "prompt_instruction_chains",
       "unmatched_if_criteria_not_linked_to_prompt",
+      "if_criteria_in_chain_missing_acc_criteria",
       "unmatched_acc_criteria_not_linked_to_if",
     ];
     for (const key in jsonData) {
@@ -343,6 +378,10 @@ document.addEventListener("DOMContentLoaded", () => {
       ],
       unmatched_if_criteria_not_linked_to_prompt: [
         "An orphan IF condition that was not linked.",
+      ],
+      if_criteria_in_chain_missing_acc_criteria: [
+        "The response replaces `eval()` for safe parsing of serialized data.",
+        "Another IF criterion in a chain that is missing its Accuracy Criteria.",
       ],
       unmatched_acc_criteria_not_linked_to_if: [
         "An orphan ACC criterion that was not linked.",

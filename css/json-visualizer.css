@@ -161,16 +161,16 @@
   /* color: #666; */
 }
 
-#jsonOutput details ul.criteria-list,
-#jsonOutput details ul.simple-list {
+#jsonOutput details ol.criteria-list,
+#jsonOutput details ol.simple-list {
   margin-top: 0;
   margin-bottom: 8px;
+  margin-left: 16px;
   padding-left: 25px;
-  list-style-type: disc;
 }
 
-#jsonOutput details ul.criteria-list li,
-#jsonOutput details ul.simple-list li {
+#jsonOutput details ol.criteria-list li,
+#jsonOutput details ol.simple-list li {
   margin-bottom: 3px;
   line-height: 1.4;
 }
@@ -201,6 +201,10 @@
 #jsonOutput details.level-2 > .details-content-wrapper > * {
   margin-left: 16px;
   padding-left: 20px;
+}
+
+#jsonOutput details.level-2 > .details-content-wrapper > .no-criteria-text {
+  margin-left: 0px;
 }
 
 /* Remove specific styling for nested details as boxes */
