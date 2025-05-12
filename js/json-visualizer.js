@@ -476,7 +476,7 @@ document.addEventListener("DOMContentLoaded", () => {
       ],
     };
     // Set the value of the textarea to the stringified example JSON, pretty-printed with 2 spaces
-    jsonInputTextarea.value = JSON.stringify(exampleJson, null, 2);
+    jsonInputTextarea.placeholder = JSON.stringify(exampleJson, null, 2);
     // Dispatch an 'input' event to trigger the event listener that enables/disables the submit button
     const event = new Event("input", { bubbles: true, cancelable: true });
     jsonInputTextarea.dispatchEvent(event);
