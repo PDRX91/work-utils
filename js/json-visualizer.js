@@ -74,11 +74,13 @@ document.addEventListener("DOMContentLoaded", () => {
       case "related_acc_criteria":
         return "Accuracy Criteria";
       case "unmatched_if_criteria_not_linked_to_prompt":
-        return "Unmatched IF Criteria (Not Linked to Prompt)";
+        return "IF Criteria that are not linked to Prompt instructions";
       case "unmatched_acc_criteria_not_linked_to_if":
-        return "Unmatched Accuracy Criteria (Not Linked to IF Criteria)";
+        return "Accuracy Criteria that are not linked to IF Criteria";
       case "if_criteria_in_chain_missing_acc_criteria":
-        return "Unmatched IF Criteria (Not Linked to Accuracy Criteria)";
+        return "IF Criteria that do not have a matching Accuracy Criteria";
+      case "prompt_instructions_not_covered_by_if_criteria":
+        return "Prompt instructions that are not covered by IF Criteria";
       default:
         // For unknown keys, convert from snake_case or camelCase to Title Case
         return key
@@ -331,12 +333,41 @@ document.addEventListener("DOMContentLoaded", () => {
       container.appendChild(unmatchedAccSection);
     }
 
-    // Section 5: Handles all other top-level properties not explicitly processed above
+    // Section 5: Handles "prompt_instructions_not_covered_by_if_criteria"
+    if (
+      jsonData.prompt_instructions_not_covered_by_if_criteria &&
+      Array.isArray(jsonData.prompt_instructions_not_covered_by_if_criteria)
+    ) {
+      const uncoveredPromptTitle =
+        getFriendlyName("prompt_instructions_not_covered_by_if_criteria") +
+        ` (${jsonData.prompt_instructions_not_covered_by_if_criteria.length})`;
+      const {
+        details: uncoveredPromptSection,
+        contentWrapper: uncoveredPromptWrapper,
+      } = createCollapsibleSection(
+        uncoveredPromptTitle,
+        0,
+        !!jsonData.prompt_instructions_not_covered_by_if_criteria.length
+      );
+      if (jsonData.prompt_instructions_not_covered_by_if_criteria.length > 0) {
+        uncoveredPromptWrapper.appendChild(
+          createList(jsonData.prompt_instructions_not_covered_by_if_criteria)
+        );
+      } else {
+        const p = document.createElement("p");
+        p.textContent = "No items.";
+        uncoveredPromptWrapper.appendChild(p);
+      }
+      container.appendChild(uncoveredPromptSection);
+    }
+
+    // Section 6: Handles all other top-level properties not explicitly processed above
     const handledKeys = [
       "prompt_instruction_chains",
       "unmatched_if_criteria_not_linked_to_prompt",
       "if_criteria_in_chain_missing_acc_criteria",
       "unmatched_acc_criteria_not_linked_to_if",
+      "prompt_instructions_not_covered_by_if_criteria",
     ]; // Array of keys already handled by specific sections
     // Iterate over all keys in the root of the JSON data
     for (const key in jsonData) {
@@ -438,28 +469,10 @@ document.addEventListener("DOMContentLoaded", () => {
                 "The response correctly creates a cache directory when missing during initialization.",
               ],
             },
-            {
-              if_criterion_text:
-                "Another IF criterion for the first instruction.",
-              related_acc_criteria: [
-                "ACC 1 for another IF.",
-                "ACC 2 for another IF.",
-              ],
-            },
           ],
         },
         {
-          prompt_instruction_text:
-            "Exception handling uses a blanket except Exception clause.",
-          related_if_criteria: [
-            {
-              if_criterion_text: "The response replaces the blanket clause.",
-              related_acc_criteria: ["The response logs full error details."],
-            },
-          ],
-        },
-        {
-          prompt_instruction_text: "Instruction with no IF criteria.",
+          prompt_instruction_text: "Prompt instruction with no IF criteria.",
           related_if_criteria: [], // Ensure this is a valid empty array
         },
       ],
@@ -473,6 +486,9 @@ document.addEventListener("DOMContentLoaded", () => {
       unmatched_acc_criteria_not_linked_to_if: [
         "An orphan ACC criterion that was not linked.",
         "Another orphan ACC criterion.",
+      ],
+      prompt_instructions_not_covered_by_if_criteria: [
+        "A prompt instruction that is not covered by any IF criteria.",
       ],
     };
     // Set the value of the textarea to the stringified example JSON, pretty-printed with 2 spaces
