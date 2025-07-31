@@ -1,7 +1,6 @@
 import "./globals.css";
-import { AuthProvider } from "./components/AuthProvider";
 import Navbar from "./components/Navbar";
-import "../public/css/auth.css";
+import AuthGate from "./components/AuthGate";
 
 export const metadata = {
   title: "Work Utilities",
@@ -18,10 +17,8 @@ export default function RootLayout({ children }) {
         />
       </head>
       <body>
-        <AuthProvider>
-          <Navbar />
-          {children}
-        </AuthProvider>
+        <Navbar />
+        <AuthGate>{children}</AuthGate>
       </body>
     </html>
   );

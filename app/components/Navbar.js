@@ -1,10 +1,33 @@
 "use client";
 
 import Link from "next/link";
-import { useAuth } from "./AuthProvider";
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { supabase } from "../lib/supabaseClient";
 
 export default function Navbar() {
-  const { isAuthenticated, logout } = useAuth();
+  const [session, setSession] = useState(null);
+  const router = useRouter();
+
+  useEffect(() => {
+    // Get and listen for auth state changes
+    supabase.auth
+      .getSession()
+      .then(({ data: { session } }) => setSession(session));
+    const { data: listener } = supabase.auth.onAuthStateChange(
+      (_event, session) => {
+        setSession(session);
+      }
+    );
+    return () => {
+      listener.subscription.unsubscribe();
+    };
+  }, []);
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    router.replace("/login");
+  };
 
   const navItems = [
     { name: "Home", href: "/" },
@@ -22,9 +45,12 @@ export default function Navbar() {
               <Link href={item.href}>{item.name}</Link>
             </li>
           ))}
-          {isAuthenticated && (
+          {session && (
             <li className="nav-auth">
-              <button onClick={logout} className="logout-button">
+              <button
+                onClick={handleLogout}
+                className="logout-button button danger"
+              >
                 Logout
               </button>
             </li>

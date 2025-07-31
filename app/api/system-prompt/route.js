@@ -1,6 +1,5 @@
 import { promises as fs } from "fs";
 import path from "path";
-import { requireAuth } from "../../lib/auth.js";
 
 const SYSTEM_PROMPT_FILE = path.join(
   process.cwd(),
@@ -8,7 +7,7 @@ const SYSTEM_PROMPT_FILE = path.join(
   "mass-eval-sys-prompt.txt"
 );
 
-const getSystemPromptHandler = async () => {
+export async function GET() {
   try {
     const content = await fs.readFile(SYSTEM_PROMPT_FILE, "utf8");
     console.log(
@@ -23,9 +22,9 @@ const getSystemPromptHandler = async () => {
       { status: 500 }
     );
   }
-};
+}
 
-const postSystemPromptHandler = async (request) => {
+export async function POST(request) {
   try {
     const { systemPrompt } = await request.json();
     await fs.writeFile(SYSTEM_PROMPT_FILE, systemPrompt, "utf8");
@@ -37,7 +36,4 @@ const postSystemPromptHandler = async (request) => {
       { status: 500 }
     );
   }
-};
-
-export const GET = requireAuth(getSystemPromptHandler);
-export const POST = requireAuth(postSystemPromptHandler);
+}

@@ -1,11 +1,8 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useAuth } from "../components/AuthProvider";
-import LoginForm from "../components/LoginForm";
 
 export default function MassEval() {
-  const { isAuthenticated, isLoading: authLoading, getAuthHeaders } = useAuth();
   const [model, setModel] = useState("openai/o4-mini");
   const [systemPrompt, setSystemPrompt] = useState("");
   const [savedSystemPrompt, setSavedSystemPrompt] = useState("");
@@ -22,14 +19,8 @@ export default function MassEval() {
 
     if (storedModel) setModel(storedModel);
     if (storedPrompt) setPrompt(storedPrompt);
+    loadSystemPrompt();
   }, []);
-
-  // Load system prompt when authenticated
-  useEffect(() => {
-    if (isAuthenticated && !authLoading) {
-      loadSystemPrompt();
-    }
-  }, [isAuthenticated, authLoading]);
 
   // Save to localStorage when model or prompt changes
   useEffect(() => {
@@ -42,9 +33,7 @@ export default function MassEval() {
 
   const loadSystemPrompt = async () => {
     try {
-      const response = await fetch("/api/system-prompt", {
-        headers: getAuthHeaders(),
-      });
+      const response = await fetch("/api/system-prompt");
       if (response.ok) {
         const data = await response.json();
         const promptText = data.systemPrompt || "";
@@ -66,7 +55,9 @@ export default function MassEval() {
     try {
       const response = await fetch("/api/system-prompt", {
         method: "POST",
-        headers: getAuthHeaders(),
+        headers: {
+          "Content-Type": "application/json",
+        },
         body: JSON.stringify({ systemPrompt }),
       });
 
@@ -125,7 +116,9 @@ export default function MassEval() {
 
       const response = await fetch("/api/evaluate", {
         method: "POST",
-        headers: getAuthHeaders(),
+        headers: {
+          "Content-Type": "application/json",
+        },
         body: JSON.stringify({
           model,
           systemPrompt: systemPrompt.trim(),
@@ -164,14 +157,6 @@ export default function MassEval() {
   };
 
   const hasSystemPromptChanges = systemPrompt !== savedSystemPrompt;
-
-  if (authLoading) {
-    return <div className="container">Loading...</div>;
-  }
-
-  if (!isAuthenticated) {
-    return <LoginForm />;
-  }
 
   return (
     <div className="container">
