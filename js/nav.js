@@ -3,6 +3,7 @@ document.addEventListener("DOMContentLoaded", function () {
     { name: "Home", href: "index.html" },
     { name: "Copy Steers", href: "copy-steers.html" },
     { name: "JSON Visualizer", href: "json-visualizer.html" },
+    { name: "Mass Eval", href: "mass-eval.html" },
   ];
 
   const navbar = document.createElement("nav");

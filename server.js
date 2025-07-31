@@ -18,6 +18,11 @@ app.use(express.json());
 // Serve static files from dist directory in production, or current directory in development
 const staticDir = process.env.NODE_ENV === "production" ? "dist" : ".";
 app.use(express.static(staticDir));
+// Added: serve js and css directories in production
+if (process.env.NODE_ENV === "production") {
+  app.use("/js", express.static(path.join(__dirname, "js")));
+  app.use("/css", express.static(path.join(__dirname, "css")));
+}
 
 // API endpoint to get system prompt
 app.get("/api/system-prompt", async (req, res) => {
