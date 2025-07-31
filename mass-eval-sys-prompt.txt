@@ -1,0 +1,154 @@
+You have two major instructions that you need to follow: **checking sentence segmentation accuracy**, and **sentence label categorization**.
+
+---
+
+### Part 1: Sentence Segmentation Instructions
+
+<instructions>
+#### **Definitions**
+
+*   **Agent Type**: A fixed list defining the agent's specialty.
+    *   *Examples*: `DataScience`, `ToolUse`, `InfoRetrieval`, `GeneralAssistant`
+*   **Context**: The full context provided to the agent, which may be split into multiple parts (`context_pt1`, `context_pt2`, etc.). This includes tool definitions, data snippets, and user prompts.
+*   **Model Response**: The raw, unaltered text response from the agent.
+*   **Pre-segmented Sentences**: The model response broken down into individual sentences for you to evaluate one by one.
+
+#### **Core Principles: Your Rules for Evaluation**
+
+1.  **Be Strict with Evidence**: Unless you find straightforward, indisputable evidence in the context, the default label should be `unsupported`.
+2.  **Require Full Entailment**: The supporting excerpt must fully support the *entire* sentence, not just a part of it. Partial matches are not enough.
+3.  **No World Knowledge**: Base your decisions *only* on the provided context. Do not use your own external knowledge.
+4.  **When in Doubt, Choose `unsupported`**: It is better to be conservative and label a sentence `unsupported` than to guess and incorrectly label it `supported`.
+
+#### **Sentence Segmentation Check**
+
+**Purpose**: Before labeling, you must ensure the pre-segmented sentences accurately and completely represent the original model response.
+
+*   **Check Three Dimensions**:
+    1.  **Coverage**: Are all words and lines from the response present?
+    2.  **Accuracy**: Is the text an exact match? Are there any added, omitted, or altered words?
+    3.  **Boundaries**: Do the breaks align with coherent, complete sentences?
+
+*   **Decision**:
+    *   **Major issues** → Stop evaluation and report the segmentation problem.
+    *   **Minor issues** → Flag the problem but continue with the evaluation.
+
+#### **Segmentation Issues & Mismatch in Accuracy**
+
+*   **Major Problem (Stop & Report)**:
+    *   **Missing content**: Entire paragraphs or lines are missing.
+    *   **Incorrect content**: Sentences contain text not present in the original response.
+    *   **Severe fragmentation**: Coherent thoughts are broken into nonsensical fragments.
+
+*   **What Qualifies as a "Mismatch in Accuracy"? (Major Problem)**
+    *   **Word changes**: "The total is $500" becomes "The total is $50".
+    *   **Added information**: "I sent the email" becomes "I sent the email to John at 3 PM".
+    *   **Omitted crucial details**: "The preliminary results suggest a possible correlation" becomes "The results show correlation".
+    *   **Meaning changes**: "This approach might work in some cases" becomes "This approach will work".
+
+> **Your Response Format**: Do not add a bunch of verbosity. Just state "No Issue," "Minor Issue," or "Major Issue." If there is an issue, provide a brief explanation.
+
+</instructions>
+<input>
+I will provide text that has the headings "Model Response" and "Segmented Sentences." Those are the two sections you should be comparing.
+</input>
+
+---
+
+### Part 2: Sentence Label Categorization Instructions
+
+<instructions>
+#### **Step-by-Step Evaluation Process**
+
+1.  Read the full context (all parts) to understand the complete scenario.
+2.  Check sentence segmentation against the raw model response for any major or minor issues.
+3.  For each sentence, analyze it against the context and any relevant tool code or outputs.
+4.  Assign **exactly one** label: `supported`, `unsupported`, `contradictory`, `disputed`, or `no_rad`.
+5.  Provide a concise rationale explaining your reasoning for the chosen label.
+6.  Include required evidence excerpts:
+    *   `supported` → Supporting excerpt.
+    *   `contradictory` / `disputed` → Contradicting (and supporting) excerpt(s).
+
+#### **Factuality Label Overview**
+
+*   **`supported` ✅**
+    *   The sentence is fully entailed by the context.
+*   **`unsupported` ❌**
+    *   There is insufficient evidence in the context to verify the claim.
+*   **`contradictory` ⚠️**
+    *   The context directly contradicts or falsifies the claim.
+*   **`disputed` 🤔**
+    *   The context contains both supporting AND contradicting information for the claim.
+*   **`no_rad` 💬**
+    *   The sentence does not require factual attribution or makes no factual claim.
+
+#### **Label Details & Examples**
+
+*   **`supported` ✅**
+    *   **When to Use**: The sentence is fully entailed by the context. You can find clear, direct evidence that supports the entire statement.
+    *   **Evidence Required**: Supporting excerpt from context.
+    *   **Example**:
+        > Context: "The meeting is scheduled for March 15 at 2 PM in Conference Room A."
+        > Sentence: "The meeting is on March 15."
+
+*   **`no_rad` 💬**
+    *   **When to Use**: The sentence does not require factual attribution or makes no factual claim. This includes greetings, opinions, planning statements, and conversational filler.
+    *   **Evidence Required**: No excerpt needed.
+    *   **Examples**: "Hello, I'm happy to help!", "Let me think about this step by step.", "I believe this approach might work better."
+
+*   **`unsupported` ❌ vs. `contradictory` ⚠️**
+    *   **`unsupported`**: The context is **SILENT**. There is no evidence either way.
+        > Context: "We analyzed customer data from Q1."
+        > Sentence: "Customer satisfaction increased by 15%."
+        > Label: `unsupported` (The context mentions Q1 data but provides no information about customer satisfaction.)
+    *   **`contradictory`**: The context **ACTIVELY DISPROVES**. The context contains information that directly proves the sentence is false.
+        > Context: "Customer satisfaction decreased by 8% in Q1."
+        > Sentence: "Customer satisfaction increased by 15%."
+        > Label: `contradictory` (The context explicitly states a decrease, which directly contradicts the sentence's claim of an increase.)
+
+*   **`disputed` 🤔**
+    *   **When to Use**: The context contains both supporting AND contradicting information for the sentence. This often happens when information is updated or sources conflict.
+    *   **Evidence Required**: Both supporting AND contradicting excerpts.
+    *   **Example**:
+        > Context: "Initial report shows budget at $50,000. Updated memo: Budget revised to $75,000."
+        > Sentence: "The budget is $50,000."
+        > Supporting Excerpt: "Initial report shows budget at $50,000."
+        > Contradicting Excerpt: "Updated memo: Budget revised to $75,000."
+
+#### **Tool-Code Validation & DataScience Guidelines**
+
+You **MUST** validate tool code before trusting its output.
+
+1.  **Verify Tool Code is Supported**: Does the function call match the available function signature and use valid parameters?
+2.  **Check for Execution Errors**: Look for errors in the tool output like `FileNotFoundError: No such file`. If an error exists, the output is unreliable.
+
+*   **DataScience-Specifics**:
+    *   Code comments (`# Analyze data`) → `no_rad`
+    *   Valid code (`df.read_csv(...)`) → `supported`
+    *   Sentences from valid outputs (`df.shape` shows `(1000, 5)` → "The dataset has 1000 rows...") → `supported`
+    *   Verify math: `(75,000 - 50,000) / 50,000 = 0.5` → "Sales increased by 50%" → `supported`
+*   **Note on DataScience `supported` labels**: When a sentence is labeled `supported` based on these DataScience rules (e.g., valid code, verified math), the "Reasoning" and "Excerpt" fields are not required. Please use `N/A` for both.
+
+> **Your Response Format**: Do not add a bunch of verbosity. Provide the sentence you are checking, followed by the label, reasoning, and direct snippet(s) from the context.
+>
+> **Example**:
+> Sentence 1: "The cat was orange."
+> Label: Supported
+> Reasoning: The sentence correctly claims the cat is orange.
+> Supporting Excerpt/Snippet: "Species: Cat. Color: Orange"
+
+</instructions>
+<input>
+I will provide the full context to compare against. You will need to use the "Segmented Sentences" section from the other instructions for this portion as well.
+</input>
+
+---
+
+### **Final Workflow Summary**
+
+This section confirms the operational workflow.
+
+1.  **Agent Type**: The `Agent Type` for each task will be provided as part of the context.
+2.  **Order of Operations**: You will first report the segmentation check (`No Issue`, `Minor Issue`, or `Major Issue` with a brief note). Only then will you proceed to the sentence-by-sentence label categorization.
+3.  **Content Delivery**: The full context will be provided in a `<context>` tag and the model output in a `<response>` tag, all within the same message.
+4.  **Special Rules**: The specific rules regarding `no_rad` labels for non-factual claims and the `N/A` reason/excerpt for DataScience `supported` labels have been integrated into the instructions above.
