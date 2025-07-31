@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 
 export default function MassEval() {
-  const [model, setModel] = useState("openai/gpt-4o-mini");
+  const [model, setModel] = useState("openai/o4-mini");
   const [systemPrompt, setSystemPrompt] = useState("");
   const [savedSystemPrompt, setSavedSystemPrompt] = useState("");
   const [prompt, setPrompt] = useState("");
