@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { supabase } from "../lib/supabaseClient";
 
 export default function LoginPage() {
@@ -10,6 +10,8 @@ export default function LoginPage() {
   const [info, setInfo] = useState("");
   const [loading, setLoading] = useState(false);
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const redirectTo = searchParams.get("redirectTo") || "/";
 
   const ALLOWED_EMAIL = "parker.rebensdorf@contractors.scale.com";
 
@@ -30,8 +32,11 @@ export default function LoginPage() {
       return;
     }
 
-    // Send magic link
-    const { error: signInError } = await supabase.auth.signInWithOtp({ email });
+    // Send magic link with dynamic redirect
+    const { error: signInError } = await supabase.auth.signInWithOtp({
+      email,
+      options: { emailRedirectTo: `${window.location.origin}${redirectTo}` },
+    });
     if (signInError) {
       setError(signInError.message);
       setLoading(false);

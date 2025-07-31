@@ -18,7 +18,8 @@ export default function AuthGate({ children }) {
 
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (!session) {
-        router.replace("/login");
+        router.replace(`/login?redirectTo=${encodeURIComponent(pathname)}`);
+        return;
       } else {
         // Check TTL stored in localStorage
         const ts = localStorage.getItem("session-timestamp");
