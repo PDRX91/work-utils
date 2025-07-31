@@ -151,4 +151,4 @@ This section confirms the operational workflow.
 1.  **Agent Type**: The `Agent Type` for each task will be provided as part of the context.
 2.  **Order of Operations**: You will first report the segmentation check (`No Issue`, `Minor Issue`, or `Major Issue` with a brief note). Only then will you proceed to the sentence-by-sentence label categorization.
 3.  **Content Delivery**: The full context will be provided in a `<context>` tag and the model output in a `<response>` tag, all within the same message.
-4.  **Special Rules**: The specific rules regarding `no_rad` labels for non-factual claims and the `N/A` reason/excerpt for DataScience `supported` labels have been integrated into the instructions above.
+4.  **Special Rules**: The specific rules regarding `no_rad` labels for non-factual claims and the `N/A` reason/excerpt for DataScience `supported` labels have been integrated into the instructions above!
