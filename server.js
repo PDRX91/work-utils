@@ -1,14 +1,23 @@
-const express = require("express");
-const path = require("path");
-const fs = require("fs").promises;
-require("dotenv").config();
+import express from "express";
+import path from "path";
+import { promises as fs } from "fs";
+import { fileURLToPath } from "url";
+import dotenv from "dotenv";
+
+dotenv.config();
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 3001;
 
 // Middleware
 app.use(express.json());
-app.use(express.static("."));
+
+// Serve static files from dist directory in production, or current directory in development
+const staticDir = process.env.NODE_ENV === "production" ? "dist" : ".";
+app.use(express.static(staticDir));
 
 // API endpoint to get system prompt
 app.get("/api/system-prompt", async (req, res) => {
@@ -153,7 +162,11 @@ app.post("/api/evaluate", async (req, res) => {
 
 // Serve the main page
 app.get("/", (req, res) => {
-  res.sendFile(path.join(__dirname, "index.html"));
+  const indexPath =
+    process.env.NODE_ENV === "production"
+      ? path.join(__dirname, "dist", "index.html")
+      : path.join(__dirname, "index.html");
+  res.sendFile(indexPath);
 });
 
 app.listen(PORT, () => {
