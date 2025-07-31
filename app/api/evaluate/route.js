@@ -1,4 +1,6 @@
-export async function POST(request) {
+import { requireAuth } from "../../lib/auth.js";
+
+const evaluateHandler = async (request) => {
   try {
     const { model, systemPrompt, prompt } = await request.json();
     const apiKey = process.env.OPENROUTER_API_KEY;
@@ -117,4 +119,6 @@ export async function POST(request) {
     console.error("API Error:", error);
     return Response.json({ error: error.message }, { status: 500 });
   }
-}
+};
+
+export const POST = requireAuth(evaluateHandler);

@@ -1,33 +1,12 @@
-import Link from "next/link";
 import "./globals.css";
+import { AuthProvider } from "./components/AuthProvider";
+import Navbar from "./components/Navbar";
+import "../public/css/auth.css";
 
 export const metadata = {
   title: "Work Utilities",
   description: "A collection of useful tools and utilities for my work",
 };
-
-function Navbar() {
-  const navItems = [
-    { name: "Home", href: "/" },
-    { name: "Copy Steers", href: "/copy-steers" },
-    { name: "JSON Visualizer", href: "/json-visualizer" },
-    { name: "Mass Eval", href: "/mass-eval" },
-  ];
-
-  return (
-    <nav className="navbar">
-      <div className="container">
-        <ul className="nav-links">
-          {navItems.map((item) => (
-            <li key={item.href}>
-              <Link href={item.href}>{item.name}</Link>
-            </li>
-          ))}
-        </ul>
-      </div>
-    </nav>
-  );
-}
 
 export default function RootLayout({ children }) {
   return (
@@ -39,8 +18,10 @@ export default function RootLayout({ children }) {
         />
       </head>
       <body>
-        <Navbar />
-        {children}
+        <AuthProvider>
+          <Navbar />
+          {children}
+        </AuthProvider>
       </body>
     </html>
   );
