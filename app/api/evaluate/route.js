@@ -1,6 +1,7 @@
 export async function POST(request) {
   try {
-    const { model, systemPrompt, prompt } = await request.json();
+    const { model, systemPrompt, rulesList, prompt, toolSchemaSubset } =
+      await request.json();
     const apiKey = process.env.OPENROUTER_API_KEY;
 
     if (!apiKey) {
@@ -17,6 +18,30 @@ export async function POST(request) {
       );
     }
 
+    // Build the final system prompt
+    let finalSystemPrompt = systemPrompt?.trim() || "";
+
+    // Append rules list if provided
+    if (rulesList && Array.isArray(rulesList) && rulesList.length > 0) {
+      finalSystemPrompt += `
+
+---
+RULES CHECKLIST:
+${JSON.stringify(rulesList, null, 2)}
+`;
+    }
+
+    // Append tool schema subset if provided
+    if (toolSchemaSubset && Object.keys(toolSchemaSubset).length > 0) {
+      finalSystemPrompt += `
+
+---
+TOOL SCHEMA SUBSET (only tools used in this conversation):
+${JSON.stringify(toolSchemaSubset, null, 2)}
+`;
+    }
+
+    // Send request to OpenRouter
     const response = await fetch(
       "https://openrouter.ai/api/v1/chat/completions",
       {
@@ -29,13 +54,13 @@ export async function POST(request) {
           "X-Title": "Mass Evaluation Tool",
         },
         body: JSON.stringify({
-          model: model,
+          model,
           messages: [
-            ...(systemPrompt
+            ...(finalSystemPrompt
               ? [
                   {
                     role: "system",
-                    content: systemPrompt,
+                    content: finalSystemPrompt,
                   },
                 ]
               : []),
@@ -59,7 +84,7 @@ export async function POST(request) {
       );
     }
 
-    // Create a TransformStream to handle the SSE data
+    // Stream the response back to the client
     const encoder = new TextEncoder();
     const stream = new ReadableStream({
       async start(controller) {
@@ -93,8 +118,8 @@ export async function POST(request) {
                     const content = parsed.choices[0].delta.content;
                     controller.enqueue(encoder.encode(content));
                   }
-                } catch (e) {
-                  // Skip invalid JSON lines
+                } catch {
+                  // Ignore malformed JSON lines
                 }
               }
             }

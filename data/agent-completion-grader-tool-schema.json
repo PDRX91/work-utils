@@ -1,0 +1,2782 @@
+{
+  "tools": {
+    "amazon": [
+      {
+        "description": "Search for product details on Amazon.",
+        "name": "product_search",
+        "optional_params": [
+          {
+            "description": "Find products in a specific category/department (e.g., computers-intl-ship). Default: aps (All Departments).",
+            "name": "category_id",
+            "type": "string"
+          },
+          {
+            "description": "Sets the Amazon domain, marketplace country, language, and currency. Default: US. Allowed values: US, AU, BR, CA, CN, FR, DE, IN, IT, MX, NL, SG, ES, TR, AE, GB, JP, SA, PL, SE, BE, EG.",
+            "name": "country",
+            "type": "string"
+          },
+          {
+            "description": "Return deals and discounts in a specific condition. Allowed values: ALL_DISCOUNTS, TODAYS_DEALS.",
+            "name": "deals_and_discounts",
+            "type": "string"
+          },
+          {
+            "description": "A comma-separated list of product fields to include in the response (e.g., product_price,product_url,is_best_seller,sales_volume).",
+            "name": "fields",
+            "type": "string"
+          },
+          {
+            "description": "Return product listings with ratings of 4 stars & up.",
+            "name": "four_stars_and_up",
+            "type": "boolean"
+          },
+          {
+            "description": "Only return Prime products.",
+            "name": "is_prime",
+            "type": "boolean"
+          },
+          {
+            "description": "The language of the results.",
+            "name": "language",
+            "type": "string"
+          },
+          {
+            "description": "Only return product offers with a price lower than a certain value.",
+            "name": "max_price",
+            "type": "number"
+          },
+          {
+            "description": "Only return product offers with a price greater than a certain value.",
+            "name": "min_price",
+            "type": "number"
+          },
+          {
+            "description": "Results page to return.",
+            "name": "page",
+            "type": "integer"
+          },
+          {
+            "description": "Return products in a specific condition.",
+            "name": "product_condition",
+            "type": "string"
+          },
+          {
+            "description": "Find products sold by a specific seller (merchant). Multiple sellers can be specified as a comma-separated list.",
+            "name": "seller_id",
+            "type": "string"
+          },
+          {
+            "description": "Return the results in a specific sort order. Default: RELEVANCE. Allowed values: RELEVANCE, LOWEST_PRICE, HIGHEST_PRICE, REVIEWS, NEWEST, BEST_SELLERS.",
+            "name": "sort_by",
+            "type": "string"
+          }
+        ],
+        "param_enums": {
+          "country": [
+            "US",
+            "AU",
+            "BR",
+            "CA",
+            "CN",
+            "FR",
+            "DE",
+            "IN",
+            "IT",
+            "MX",
+            "NL",
+            "SG",
+            "ES",
+            "TR",
+            "AE",
+            "GB",
+            "JP",
+            "SA",
+            "PL",
+            "SE",
+            "BE",
+            "EG"
+          ],
+          "deals_and_discounts": ["ALL_DISCOUNTS", "TODAYS_DEALS"],
+          "sort_by": [
+            "RELEVANCE",
+            "LOWEST_PRICE",
+            "HIGHEST_PRICE",
+            "REVIEWS",
+            "NEWEST",
+            "BEST_SELLERS"
+          ]
+        },
+        "required_params": [
+          {
+            "description": "Search query (supports both free-form text queries or a product ASIN).",
+            "name": "query",
+            "type": "string"
+          }
+        ]
+      },
+      {
+        "description": "Search for product details on Amazon.",
+        "name": "product_details",
+        "optional_params": [
+          {
+            "description": "Sets the Amazon domain, marketplace country, language, and currency. Default: US. Allowed values: US, AU, BR, CA, CN, FR, DE, IN, IT, MX, NL, SG, ES, TR, AE, GB, JP, SA, PL, SE, BE, EG.",
+            "name": "country",
+            "type": "string"
+          },
+          {
+            "description": "A comma-separated list of product fields to include in the response (e.g., product_price,product_url,is_best_seller,sales_volume).",
+            "name": "fields",
+            "type": "string"
+          },
+          {
+            "description": "The language of the results.",
+            "name": "language",
+            "type": "string"
+          },
+          {
+            "description": "A query to search and get more info about the product as part of Product Information, Customer Q&As, and Customer Reviews.",
+            "name": "more_info_query",
+            "type": "string"
+          },
+          {
+            "description": "Results page to return.",
+            "name": "page",
+            "type": "integer"
+          }
+        ],
+        "param_enums": {
+          "country": [
+            "US",
+            "AU",
+            "BR",
+            "CA",
+            "CN",
+            "FR",
+            "DE",
+            "IN",
+            "IT",
+            "MX",
+            "NL",
+            "SG",
+            "ES",
+            "TR",
+            "AE",
+            "GB",
+            "JP",
+            "SA",
+            "PL",
+            "SE",
+            "BE",
+            "EG"
+          ]
+        },
+        "required_params": [
+          {
+            "description": "Product ASIN for which to get details. Supports batching of up to 10 ASINs in a single request, separated by a comma.",
+            "name": "asin",
+            "type": "string"
+          }
+        ]
+      },
+      {
+        "description": "Search for product reviews on Amazon.",
+        "name": "product_reviews",
+        "optional_params": [
+          {
+            "description": "Sets the Amazon domain, marketplace country, language, and currency. Default: US. Allowed values: US, AU, BR, CA, CN, FR, DE, IN, IT, MX, NL, SG, ES, TR, AE, GB, JP, SA, PL, SE, BE, EG.",
+            "name": "country",
+            "type": "string"
+          },
+          {
+            "description": "Only return reviews of the current format (product variant - e.g., Color). By default, reviews are returned for all product variants.",
+            "name": "current_format_only",
+            "type": "boolean"
+          },
+          {
+            "description": "A comma-separated list of product fields to include in the response (e.g., product_price,product_url,is_best_seller,sales_volume).",
+            "name": "fields",
+            "type": "string"
+          },
+          {
+            "description": "Only return reviews containing images and/or videos.",
+            "name": "images_or_videos_only",
+            "type": "boolean"
+          },
+          {
+            "description": "The language of the results.",
+            "name": "language",
+            "type": "string"
+          },
+          {
+            "description": "Results page to return.",
+            "name": "page",
+            "type": "integer"
+          },
+          {
+            "description": "Find reviews matching a search query.",
+            "name": "query",
+            "type": "string"
+          },
+          {
+            "description": "Return reviews in a specific sort order. Default: TOP_REVIEWS. Allowed values: TOP_REVIEWS, MOST_RECENT.",
+            "name": "sort_by",
+            "type": "string"
+          },
+          {
+            "description": "Only return reviews with a specific star rating. Default: ALL. Allowed values: ALL, 5_STARS, 4_STARS, 3_STARS, 2_STARS, 1_STARS, POSITIVE, CRITICAL.",
+            "name": "star_rating",
+            "type": "string"
+          },
+          {
+            "description": "Only return reviews by reviewers who made a verified purchase.",
+            "name": "verified_purchases_only",
+            "type": "boolean"
+          }
+        ],
+        "param_enums": {
+          "country": [
+            "US",
+            "AU",
+            "BR",
+            "CA",
+            "CN",
+            "FR",
+            "DE",
+            "IN",
+            "IT",
+            "MX",
+            "NL",
+            "SG",
+            "ES",
+            "TR",
+            "AE",
+            "GB",
+            "JP",
+            "SA",
+            "PL",
+            "SE",
+            "BE",
+            "EG"
+          ],
+          "sort_by": ["TOP_REVIEWS", "MOST_RECENT"],
+          "star_rating": [
+            "ALL",
+            "5_STARS",
+            "4_STARS",
+            "3_STARS",
+            "2_STARS",
+            "1_STARS",
+            "POSITIVE",
+            "CRITICAL"
+          ]
+        },
+        "required_params": [
+          {
+            "description": "Product ASIN for which to get reviews.",
+            "name": "asin",
+            "type": "string"
+          }
+        ]
+      },
+      {
+        "description": "Search for a seller's profile on Amazon.",
+        "name": "seller_profile",
+        "optional_params": [
+          {
+            "description": "Sets the Amazon domain, marketplace country, language, and currency. Default: US. Allowed values: US, AU, BR, CA, CN, FR, DE, IN, IT, MX, NL, SG, ES, TR, AE, GB, JP, SA, PL, SE, BE, EG.",
+            "name": "country",
+            "type": "string"
+          },
+          {
+            "description": "A comma-separated list of product fields to include in the response (e.g., product_price,product_url,is_best_seller,sales_volume).",
+            "name": "fields",
+            "type": "string"
+          },
+          {
+            "description": "The language of the results.",
+            "name": "language",
+            "type": "string"
+          },
+          {
+            "description": "Results page to return.",
+            "name": "page",
+            "type": "integer"
+          }
+        ],
+        "param_enums": {
+          "country": [
+            "US",
+            "AU",
+            "BR",
+            "CA",
+            "CN",
+            "FR",
+            "DE",
+            "IN",
+            "IT",
+            "MX",
+            "NL",
+            "SG",
+            "ES",
+            "TR",
+            "AE",
+            "GB",
+            "JP",
+            "SA",
+            "PL",
+            "SE",
+            "BE",
+            "EG"
+          ]
+        },
+        "required_params": [
+          {
+            "description": "The Amazon Seller ID for which to get seller profile details.",
+            "name": "seller_id",
+            "type": "string"
+          }
+        ]
+      },
+      {
+        "description": "Search for seller reviews on Amazon.",
+        "name": "seller_reviews",
+        "optional_params": [
+          {
+            "description": "Sets the Amazon domain, marketplace country, language, and currency. Default: US. Allowed values: US, AU, BR, CA, CN, FR, DE, IN, IT, MX, NL, SG, ES, TR, AE, GB, JP, SA, PL, SE, BE, EG.",
+            "name": "country",
+            "type": "string"
+          },
+          {
+            "description": "A comma-separated list of product fields to include in the response (e.g., product_price,product_url,is_best_seller,sales_volume).",
+            "name": "fields",
+            "type": "string"
+          },
+          {
+            "description": "The language of the results.",
+            "name": "language",
+            "type": "string"
+          },
+          {
+            "description": "Results page to return.",
+            "name": "page",
+            "type": "integer"
+          },
+          {
+            "description": "Only return reviews with a specific star rating or positive/negative sentiment. Default: ALL. Allowed values: ALL, 5_STARS, 4_STARS, 3_STARS, 2_STARS, 1_STARS, POSITIVE, CRITICAL.",
+            "name": "star_rating",
+            "type": "string"
+          }
+        ],
+        "param_enums": {
+          "country": [
+            "US",
+            "AU",
+            "BR",
+            "CA",
+            "CN",
+            "FR",
+            "DE",
+            "IN",
+            "IT",
+            "MX",
+            "NL",
+            "SG",
+            "ES",
+            "TR",
+            "AE",
+            "GB",
+            "JP",
+            "SA",
+            "PL",
+            "SE",
+            "BE",
+            "EG"
+          ],
+          "star_rating": [
+            "ALL",
+            "5_STARS",
+            "4_STARS",
+            "3_STARS",
+            "2_STARS",
+            "1_STARS",
+            "POSITIVE",
+            "CRITICAL"
+          ]
+        },
+        "required_params": [
+          {
+            "description": "The Amazon Seller ID for which to get seller profile details.",
+            "name": "seller_id",
+            "type": "string"
+          }
+        ]
+      },
+      {
+        "description": "Search for products from a seller on Amazon.",
+        "name": "seller_products",
+        "optional_params": [
+          {
+            "description": "Sets the Amazon domain, marketplace country, language, and currency. Default: US. Allowed values: US, AU, BR, CA, CN, FR, DE, IN, IT, MX, NL, SG, ES, TR, AE, GB, JP, SA, PL, SE, BE, EG.",
+            "name": "country",
+            "type": "string"
+          },
+          {
+            "description": "A comma-separated list of product fields to include in the response (e.g., product_price,product_url,is_best_seller,sales_volume).",
+            "name": "fields",
+            "type": "string"
+          },
+          {
+            "description": "The language of the results.",
+            "name": "language",
+            "type": "string"
+          },
+          {
+            "description": "Results page to return.",
+            "name": "page",
+            "type": "integer"
+          },
+          {
+            "description": "Return the results in a specific sort order. Default: RELEVANCE. Allowed values: RELEVANCE, LOWEST_PRICE, HIGHEST_PRICE, REVIEWS, NEWEST, BEST_SELLERS.",
+            "name": "sort_by",
+            "type": "string"
+          }
+        ],
+        "param_enums": {
+          "country": [
+            "US",
+            "AU",
+            "BR",
+            "CA",
+            "CN",
+            "FR",
+            "DE",
+            "IN",
+            "IT",
+            "MX",
+            "NL",
+            "SG",
+            "ES",
+            "TR",
+            "AE",
+            "GB",
+            "JP",
+            "SA",
+            "PL",
+            "SE",
+            "BE",
+            "EG"
+          ],
+          "sort_by": [
+            "RELEVANCE",
+            "LOWEST_PRICE",
+            "HIGHEST_PRICE",
+            "REVIEWS",
+            "NEWEST",
+            "BEST_SELLERS"
+          ]
+        },
+        "required_params": [
+          {
+            "description": "The Amazon Seller ID for which to get seller profile details.",
+            "name": "seller_id",
+            "type": "string"
+          }
+        ]
+      },
+      {
+        "description": "Get the list of product categories on Amazon.",
+        "name": "get_product_categories",
+        "optional_params": [
+          {
+            "description": "Sets the Amazon domain, marketplace country, language, and currency. Default: US. Allowed values: US, AU, BR, CA, CN, FR, DE, IN, IT, MX, NL, SG, ES, TR, AE, GB, JP, SA, PL, SE, BE, EG.",
+            "name": "country",
+            "type": "string"
+          }
+        ],
+        "param_enums": {
+          "country": [
+            "US",
+            "AU",
+            "BR",
+            "CA",
+            "CN",
+            "FR",
+            "DE",
+            "IN",
+            "IT",
+            "MX",
+            "NL",
+            "SG",
+            "ES",
+            "TR",
+            "AE",
+            "GB",
+            "JP",
+            "SA",
+            "PL",
+            "SE",
+            "BE",
+            "EG"
+          ]
+        },
+        "required_params": []
+      }
+    ],
+    "calendar": [
+      {
+        "description": "Creates a new calendar and returns a unique ID (uuid) for it, which can be used to add events to the calendar.",
+        "name": "create_calendar",
+        "optional_params": [],
+        "param_enums": {},
+        "required_params": [
+          {
+            "description": "A title that summarizes the new calendar (e.g., 'Work').",
+            "name": "title",
+            "type": "string"
+          }
+        ]
+      },
+      {
+        "description": "Searches for calendars based on specified criteria. At least one search criterion should be provided.",
+        "name": "search_calendars",
+        "optional_params": [
+          {
+            "description": "The unique string identifier for the calendar. This will be an exact match.",
+            "name": "calendar_id",
+            "type": "string"
+          },
+          {
+            "description": "A search query for the title field, which will be matched based on semantic similarity.",
+            "name": "title",
+            "type": "string"
+          }
+        ],
+        "param_enums": {},
+        "required_params": []
+      },
+      {
+        "description": "Modifies an existing calendar. The only editable field is the title.",
+        "name": "modify_calendar",
+        "optional_params": [],
+        "param_enums": {},
+        "required_params": [
+          {
+            "description": "The UUID of the calendar to be edited.",
+            "name": "calendar_id",
+            "type": "string"
+          },
+          {
+            "description": "The new title for the calendar (e.g., 'Home').",
+            "name": "title",
+            "type": "string"
+          }
+        ]
+      },
+      {
+        "description": "Removes a calendar based on its UUID. Note that removing a calendar also removes all associated calendar events.",
+        "name": "remove_calendar",
+        "optional_params": [],
+        "param_enums": {},
+        "required_params": [
+          {
+            "description": "The UUID of the calendar to be removed.",
+            "name": "calendar_id",
+            "type": "string"
+          }
+        ]
+      },
+      {
+        "description": "Creates a calendar event based on the provided arguments.",
+        "name": "create_calendar_event",
+        "optional_params": [
+          {
+            "description": "A list of attendee emails.",
+            "name": "attendee_emails",
+            "type": "array of strings"
+          },
+          {
+            "description": "A list of attendee names.",
+            "name": "attendee_names",
+            "type": "array of strings"
+          },
+          {
+            "description": "A detailed description of the event.",
+            "name": "description",
+            "type": "string"
+          },
+          {
+            "description": "The formatted address of the event location.",
+            "name": "formatted_address",
+            "type": "string"
+          },
+          {
+            "description": "Indicates if this is an all-day event.",
+            "name": "is_all_day",
+            "type": "boolean"
+          },
+          {
+            "description": "The latitude of the event location.",
+            "name": "latitude",
+            "type": "number"
+          },
+          {
+            "description": "The longitude of the event location.",
+            "name": "longitude",
+            "type": "number"
+          },
+          {
+            "description": "The place_id of the event location.",
+            "name": "place_id",
+            "type": "string"
+          },
+          {
+            "description": "The unit of recurrence frequency (YEARLY, MONTHLY, WEEKLY, DAILY).",
+            "name": "recurrence_frequency",
+            "type": "string"
+          },
+          {
+            "description": "Combined with the unit, this forms a recurrence rule (e.g., an interval of 2 and a frequency of WEEKLY means biweekly).",
+            "name": "recurrence_interval",
+            "type": "integer"
+          },
+          {
+            "description": "The end of the recurrence in ISO 8601 format (e.g., 2024-12-31T15:00-08:00).",
+            "name": "recurrence_until_datetime",
+            "type": "string"
+          }
+        ],
+        "param_enums": {
+          "recurrence_frequency": ["YEARLY", "MONTHLY", "WEEKLY", "DAILY"]
+        },
+        "required_params": [
+          {
+            "description": "The UUID of the calendar this event belongs to.",
+            "name": "calendar_id",
+            "type": "string"
+          },
+          {
+            "description": "A title or summary for the event.",
+            "name": "title",
+            "type": "string"
+          },
+          {
+            "description": "The event's start time in ISO 8601 format with a UTC timezone offset (e.g., 2024-12-09T15:00-08:00).",
+            "name": "start_datetime",
+            "type": "string"
+          },
+          {
+            "description": "The event's end time in ISO 8601 format with a UTC timezone offset (e.g., 2024-12-09T16:00-08:00).",
+            "name": "end_datetime",
+            "type": "string"
+          }
+        ]
+      },
+      {
+        "description": "Searches for calendar events based on a series of criteria. At least one search criterion should be provided.",
+        "name": "search_calendar_events",
+        "optional_params": [
+          {
+            "description": "A list of attendee emails to be exact matched.",
+            "name": "attendee_emails",
+            "type": "array of strings"
+          },
+          {
+            "description": "A list of attendee names to be semantically matched.",
+            "name": "attendee_names",
+            "type": "array of strings"
+          },
+          {
+            "description": "The unique string identifier for a calendar event, which will be exact matched.",
+            "name": "calendar_event_id",
+            "type": "string"
+          },
+          {
+            "description": "The unique string identifier for the calendar to search under, which will be exact matched.",
+            "name": "calendar_id",
+            "type": "string"
+          },
+          {
+            "description": "The lower bound of the datetime range to search for a calendar event.",
+            "name": "datetime_range_lowerbound",
+            "type": "string"
+          },
+          {
+            "description": "The upper bound of the datetime range to search for a calendar event.",
+            "name": "datetime_range_upperbound",
+            "type": "string"
+          },
+          {
+            "description": "A detailed description of the calendar event, which will be semantically matched.",
+            "name": "description",
+            "type": "string"
+          },
+          {
+            "description": "The formatted address of the location, which will be semantically matched.",
+            "name": "formatted_address",
+            "type": "string"
+          },
+          {
+            "description": "A boolean indicating all-day events, which will be exact matched.",
+            "name": "is_all_day",
+            "type": "boolean"
+          },
+          {
+            "description": "The latitude of the location, which will be matched with a 0.01-degree tolerance.",
+            "name": "latitude",
+            "type": "number"
+          },
+          {
+            "description": "The longitude of the location, which will be matched with a 0.01-degree tolerance.",
+            "name": "longitude",
+            "type": "number"
+          },
+          {
+            "description": "The place_id of the location, which will be exact matched.",
+            "name": "place_id",
+            "type": "string"
+          },
+          {
+            "description": "An enum indicating the recurrence frequency, which will be exact matched.",
+            "name": "recurrence_frequency",
+            "type": "string"
+          },
+          {
+            "description": "An enum indicating the recurrence interval, which will be exact matched.",
+            "name": "recurrence_interval",
+            "type": "integer"
+          },
+          {
+            "description": "The end of the recurrence in ISO 8601 format, which will be exact matched.",
+            "name": "recurrence_until_datetime",
+            "type": "integer"
+          },
+          {
+            "description": "The title summarizing the calendar event, which will be semantically matched.",
+            "name": "title",
+            "type": "string"
+          }
+        ],
+        "param_enums": {},
+        "required_params": []
+      },
+      {
+        "description": "Removes a calendar event based on its UUID.",
+        "name": "remove_calendar_event",
+        "optional_params": [],
+        "param_enums": {},
+        "required_params": [
+          {
+            "description": "The UUID of the calendar event to be removed.",
+            "name": "calendar_event_id",
+            "type": "string"
+          }
+        ]
+      },
+      {
+        "description": "Modifies a calendar event based on its UUID. Besides the calendar_event_id, at least one modification field must be provided.",
+        "name": "modify_calendar_event",
+        "optional_params": [
+          {
+            "description": "The new list of attendee emails.",
+            "name": "attendee_emails",
+            "type": "array of strings"
+          },
+          {
+            "description": "The new list of attendee names.",
+            "name": "attendee_names",
+            "type": "array of strings"
+          },
+          {
+            "description": "The new unique string identifier for the calendar this event belongs to.",
+            "name": "calendar_id",
+            "type": "string"
+          },
+          {
+            "description": "The new detailed description of the calendar event.",
+            "name": "description",
+            "type": "string"
+          },
+          {
+            "description": "The new end time in ISO 8601 format.",
+            "name": "end_datetime",
+            "type": "string"
+          },
+          {
+            "description": "The new formatted address of the location.",
+            "name": "formatted_address",
+            "type": "string"
+          },
+          {
+            "description": "A boolean indicating if the event is an all-day event.",
+            "name": "is_all_day",
+            "type": "boolean"
+          },
+          {
+            "description": "The new latitude of the location.",
+            "name": "latitude",
+            "type": "number"
+          },
+          {
+            "description": "The new longitude of the location.",
+            "name": "longitude",
+            "type": "number"
+          },
+          {
+            "description": "The new place_id of the location.",
+            "name": "place_id",
+            "type": "string"
+          },
+          {
+            "description": "An enum indicating the new recurrence frequency.",
+            "name": "recurrence_frequency",
+            "type": "string"
+          },
+          {
+            "description": "An enum indicating the new recurrence interval.",
+            "name": "recurrence_interval",
+            "type": "integer"
+          },
+          {
+            "description": "The end of the recurrence in ISO 8601 format.",
+            "name": "recurrence_until_datetime",
+            "type": "integer"
+          },
+          {
+            "description": "The new start time in ISO 8601 format.",
+            "name": "start_datetime",
+            "type": "string"
+          },
+          {
+            "description": "The new title summarizing the calendar event.",
+            "name": "title",
+            "type": "string"
+          }
+        ],
+        "param_enums": {},
+        "required_params": [
+          {
+            "description": "The UUID of the calendar event to be modified.",
+            "name": "calendar_event_id",
+            "type": "string"
+          }
+        ]
+      }
+    ],
+    "financial_market": [
+      {
+        "description": "Get a list of market tickers available for trading.",
+        "name": "get_market_tickers",
+        "optional_params": [
+          {
+            "description": "Enter one of the following asset classes: STOCKS, ETF, or MUTUALFUNDS. Example: STOCKS.",
+            "name": "asset_type",
+            "type": "string"
+          },
+          {
+            "description": "Enter a page number.",
+            "name": "page",
+            "type": "integer"
+          }
+        ],
+        "param_enums": {
+          "asset_type": ["STOCKS", "ETF", "MUTUALFUNDS"]
+        },
+        "required_params": []
+      },
+      {
+        "description": "Search for securities (stocks, ETFs, mutual funds, etc.) by name or symbol.",
+        "name": "search_securities",
+        "optional_params": [],
+        "param_enums": {},
+        "required_params": [
+          {
+            "description": "Search query string. Can be a company name, ticker symbol, or partial match. Examples: 'Apple', 'AAPL', 'Tesla', 'TSLA'.",
+            "name": "search",
+            "type": "string"
+          }
+        ]
+      },
+      {
+        "description": "Get snapshot quotes for multiple securities (batch request).",
+        "name": "get_market_quotes_snapshots",
+        "optional_params": [],
+        "param_enums": {},
+        "required_params": [
+          {
+            "description": "Comma-separated list of ticker symbols. Maximum 200 symbols.",
+            "name": "tickers",
+            "type": "string"
+          }
+        ]
+      },
+      {
+        "description": "Get a real-time quote for a single security.",
+        "name": "get_market_quotes",
+        "optional_params": [
+          {
+            "description": "Type of asset to get a quote for. Default: STOCKS. Supported types: STOCKS, ETF, MUTUALFUNDS.",
+            "name": "asset_type",
+            "type": "string"
+          }
+        ],
+        "param_enums": {
+          "asset_type": ["STOCKS", "ETF", "MUTUALFUNDS"]
+        },
+        "required_params": [
+          {
+            "description": "Single ticker symbol to get a quote for. Examples: AAPL, MSFT, TSLA, ^SPX, BTC-USD.",
+            "name": "ticker",
+            "type": "string"
+          }
+        ]
+      },
+      {
+        "description": "Get historical price data for a stock or security.",
+        "name": "get_stock_history",
+        "optional_params": [
+          {
+            "description": "Include dividend information in the response. Optional, set to True to include dividends.",
+            "name": "dividend",
+            "type": "boolean"
+          },
+          {
+            "description": "Data interval/granularity. Default: 1d. Valid intervals: 1m, 2m, 3m, 4m, 5m, 15m, 30m, 1h, 1d, 1wk, 1mo, 1qty.",
+            "name": "interval",
+            "type": "string"
+          },
+          {
+            "description": "Limit the number of candles returned. Optional, range: 1-1000.",
+            "name": "limit",
+            "type": "integer"
+          }
+        ],
+        "param_enums": {
+          "interval": [
+            "1m",
+            "2m",
+            "3m",
+            "4m",
+            "5m",
+            "15m",
+            "30m",
+            "1h",
+            "1d",
+            "1wk",
+            "1mo",
+            "1qty"
+          ]
+        },
+        "required_params": [
+          {
+            "description": "Stock symbol to get historical data for. Examples: AAPL, MSFT, TSLA, ^SPX, BTC-USD.",
+            "name": "symbol",
+            "type": "string"
+          }
+        ]
+      },
+      {
+        "description": "Screen stocks based on various predefined criteria.",
+        "name": "screen_stocks",
+        "optional_params": [
+          {
+            "description": "Type of stock screener to use.\nDefault: most_actives\nAvailable screeners:\n- trending: Trending tickers in today's market\n- undervalued_growth_stocks: Stocks with earnings growth\n- growth_technology_stocks: Technology stocks with revenue\n- day_gainers: Stocks with the highest gains\n- day_losers: Stocks with the highest losses\n- most_actives: Stocks by intraday trade volume\n- undervalued_large_caps: Undervalued large cap stocks\n- aggressive_small_caps: Small-cap stocks with earnings growth\n- small_cap_gainers: Small caps with a 1 day price change of 5.0%",
+            "name": "list_type",
+            "type": "string"
+          }
+        ],
+        "param_enums": {
+          "list_type": [
+            "trending",
+            "undervalued_growth_stocks",
+            "growth_technology_stocks",
+            "day_gainers",
+            "day_losers",
+            "most_actives",
+            "undervalued_large_caps",
+            "aggressive_small_caps",
+            "small_cap_gainers"
+          ]
+        },
+        "required_params": []
+      },
+      {
+        "description": "Get detailed stock information organized by modules.\nAvailable modules:\nprofile: Company profile and business description |  income-statement: Annual income statements | balance-sheet: Annual balance sheets | cashflow-statement: Annual cash flow statements | statistics: Key financial statistics | calendar-events: Upcoming calendar events | sec-filings: SEC filings | recommendation-trend: Analyst recommendation trends |  upgrade-downgrade-history: Upgrade/downgrade history | institution-ownership: Institutional ownership data | fund-ownership: Fund ownership data | major-directHolders: Major direct holders | major-holders-breakdown: Major holders breakdown |  insider-transactions: Insider transaction data |  insider-holders: Insider holders data |net-share-purchase-activity: Net share purchase activity |  earnings: Earnings data | industry-trend: Industry trend data | index-trend: Index trend data | sector-trend: Sector trend data",
+        "name": "get_stock_modules",
+        "optional_params": [
+          {
+            "description": "Single module to retrieve (one per request). Default: profile. See the description for a full list of available modules.",
+            "name": "module",
+            "type": "string"
+          }
+        ],
+        "param_enums": {
+          "module": [
+            "profile",
+            "income-statement",
+            "balance-sheet",
+            "cashflow-statement",
+            "statistics",
+            "calendar-events",
+            "sec-filings",
+            "recommendation-trend",
+            "upgrade-downgrade-history",
+            "institution-ownership",
+            "fund-ownership",
+            "major-directHolders",
+            "major-holders-breakdown",
+            "insider-transactions",
+            "insider-holders",
+            "net-share-purchase-activity",
+            "earnings",
+            "industry-trend",
+            "index-trend",
+            "sector-trend"
+          ]
+        },
+        "required_params": [
+          {
+            "description": "Stock symbol to get module data for. Examples: AAPL, MSFT, TSLA, ^SPX.",
+            "name": "ticker",
+            "type": "string"
+          }
+        ]
+      },
+      {
+        "description": "Get general insider trading information from the market.",
+        "name": "get_insider_trades",
+        "optional_params": [],
+        "param_enums": {},
+        "required_params": []
+      },
+      {
+        "description": "Get the latest market news and financial articles.",
+        "name": "get_market_news",
+        "optional_params": [
+          {
+            "description": "Type of news to retrieve (optional). Available types: ALL, VIDEO, PRESS_RELEASE.",
+            "name": "news_type",
+            "type": "string"
+          },
+          {
+            "description": "Stock symbol to get news for (optional). Examples: AAPL, MSFT, TSLA.",
+            "name": "tickers",
+            "type": "string"
+          }
+        ],
+        "param_enums": {
+          "news_type": ["ALL", "VIDEO", "PRESS_RELEASE"]
+        },
+        "required_params": []
+      }
+    ],
+    "holiday": [
+      {
+        "description": "Get public holidays for a specific country and year. This function retrieves all public holidays for a given country in a specified year. The holidays include national holidays, religious observances, and other significant dates recognized by the country's government or cultural institutions.",
+        "name": "get_country_holidays_by_year",
+        "optional_params": [],
+        "param_enums": {},
+        "required_params": [
+          {
+            "description": "The year for which to retrieve holidays (e.g., 2023, 2024). Must be a valid 4-digit year. Most countries have data available for recent years and some future years.",
+            "name": "year",
+            "type": "integer"
+          },
+          {
+            "description": "The ISO 3166-1 alpha-2 country code (e.g., 'US' for United States, 'GB' for United Kingdom, 'CA' for Canada, 'DE' for Germany).",
+            "name": "country_code",
+            "type": "string"
+          }
+        ]
+      },
+      {
+        "description": "Get the list of supported country codes for holiday data. This function retrieves all country codes that are supported by the public holidays API. Each country code follows the ISO 3166-1 alpha-2 standard (two-letter country codes).",
+        "name": "get_supported_country_codes",
+        "optional_params": [],
+        "param_enums": {},
+        "required_params": []
+      }
+    ],
+    "news": [
+      {
+        "description": "Get the latest news from various categories.",
+        "name": "get_latest_news",
+        "optional_params": [
+          {
+            "description": "Language region parameter to specify the desired language and region of the news. Default: en-US.",
+            "name": "lr",
+            "type": "string"
+          }
+        ],
+        "param_enums": {},
+        "required_params": []
+      },
+      {
+        "description": "Get the latest news from around the world.",
+        "name": "get_world_news",
+        "optional_params": [
+          {
+            "description": "Language region parameter to specify the desired language and region of the news.",
+            "name": "lr",
+            "type": "string"
+          }
+        ],
+        "param_enums": {},
+        "required_params": []
+      },
+      {
+        "description": "Get news related to business.",
+        "name": "get_business_news",
+        "optional_params": [
+          {
+            "description": "Language region parameter to specify the desired language and region of the news. Default: en-US.",
+            "name": "lr",
+            "type": "string"
+          }
+        ],
+        "param_enums": {},
+        "required_params": []
+      },
+      {
+        "description": "Get news related to entertainment.",
+        "name": "get_entertainment_news",
+        "optional_params": [
+          {
+            "description": "Language region parameter to specify the desired language and region of the news. Default: en-US.",
+            "name": "lr",
+            "type": "string"
+          }
+        ],
+        "param_enums": {},
+        "required_params": []
+      },
+      {
+        "description": "Get news related to health.",
+        "name": "get_health_news",
+        "optional_params": [
+          {
+            "description": "Language region parameter to specify the desired language and region of the news. Default: en-US.",
+            "name": "lr",
+            "type": "string"
+          }
+        ],
+        "param_enums": {},
+        "required_params": []
+      },
+      {
+        "description": "Get news related to science.",
+        "name": "get_science_news",
+        "optional_params": [
+          {
+            "description": "Language region parameter to specify the desired language and region of the news. Default: en-US.",
+            "name": "lr",
+            "type": "string"
+          }
+        ],
+        "param_enums": {},
+        "required_params": []
+      },
+      {
+        "description": "Get news related to sports.",
+        "name": "get_sport_news",
+        "optional_params": [
+          {
+            "description": "Language region parameter to specify the desired language and region of the news. Default: en-US.",
+            "name": "lr",
+            "type": "string"
+          }
+        ],
+        "param_enums": {},
+        "required_params": []
+      },
+      {
+        "description": "Get news related to technology.",
+        "name": "get_technology_news",
+        "optional_params": [
+          {
+            "description": "Language region parameter to specify the desired language and region of the news. Default: en-US.",
+            "name": "lr",
+            "type": "string"
+          }
+        ],
+        "param_enums": {},
+        "required_params": []
+      },
+      {
+        "description": "Search for news based on a keyword.",
+        "name": "search_news",
+        "optional_params": [
+          {
+            "description": "Language region parameter to specify the desired language and region of the news.",
+            "name": "lr",
+            "type": "string"
+          }
+        ],
+        "param_enums": {},
+        "required_params": [
+          {
+            "description": "The search keyword to find relevant news articles. Can be any topic, person, company, event, or subject of interest. Examples: 'COVID-19', 'Apple', 'climate change', 'Olympics', 'AI technology'.",
+            "name": "keyword",
+            "type": "string"
+          }
+        ]
+      },
+      {
+        "description": "Get keyword search suggestions based on user input.",
+        "name": "get_search_suggestions",
+        "optional_params": [
+          {
+            "description": "Language region parameter to specify the desired language and region of the search suggestions.",
+            "name": "lr",
+            "type": "string"
+          }
+        ],
+        "param_enums": {},
+        "required_params": [
+          {
+            "description": "The user input for keyword search suggestions. Can be partial words or phrases to get autocomplete suggestions. Examples: 'econ' (might suggest 'economy', 'economics'), 'tech' (might suggest 'technology', 'tech news'), 'clim' (might suggest 'climate').",
+            "name": "keyword",
+            "type": "string"
+          }
+        ]
+      }
+    ],
+    "places_maps": [
+      {
+        "description": "Returns canonical information including a unique place_id, latitude, longitude, and street address for a set of places based on a string query. It also includes common filter criteria like price_level, rating, and types. This service is particularly useful for handling ambiguous address queries in an automated system.",
+        "name": "search_place",
+        "optional_params": [
+          {
+            "description": "The country to search in, specified in lowercase ISO 3166-1 alpha-2 format. This also affects language codes.",
+            "name": "country",
+            "type": "string"
+          },
+          {
+            "description": "The language for the results, specified in lowercase ISO 639 Set 1.",
+            "name": "language",
+            "type": "string"
+          },
+          {
+            "description": "The center latitude of the search radius. Must be provided with longitude and radius.",
+            "name": "latitude",
+            "type": "number"
+          },
+          {
+            "description": "The center longitude of the search radius. Must be provided with latitude and radius.",
+            "name": "longitude",
+            "type": "number"
+          },
+          {
+            "description": "Defines the distance (in meters) within which to return place results. The maximum value is 50,000 meters.",
+            "name": "radius",
+            "type": "number"
+          }
+        ],
+        "param_enums": {},
+        "required_params": [
+          {
+            "description": "The text string to search for, such as 'restaurant' or '123 Main Street'. This must be a place name, address, or category of establishments.",
+            "name": "query",
+            "type": "string"
+          }
+        ]
+      },
+      {
+        "description": "Retrieves more comprehensive information about a particular establishment or point of interest using its place_id. This can include the complete address, phone number, opening hours, user rating, and reviews.",
+        "name": "place_details",
+        "optional_params": [
+          {
+            "description": "The country to search in, specified in lowercase ISO 3166-1 alpha-2 format.",
+            "name": "country",
+            "type": "string"
+          },
+          {
+            "description": "The language for the results, specified in lowercase ISO 639 Set 1.",
+            "name": "language",
+            "type": "string"
+          }
+        ],
+        "param_enums": {},
+        "required_params": [
+          {
+            "description": "The unique ID representing the location, returned by the search_place tool.",
+            "name": "place_id",
+            "type": "string"
+          }
+        ]
+      },
+      {
+        "description": "Searches for directions from an origin to a destination with options for preferred departure/arrival times, various modes of transportation (transit, driving, walking, or cycling), and traffic estimates.",
+        "name": "get_directions",
+        "optional_params": [
+          {
+            "description": "The expected arrival time in ISO 8601 format with a timezone offset (e.g., 2024-12-03T22:26-08:00). Cannot be set if departure_time is also set.",
+            "name": "arrival_time",
+            "type": "string"
+          },
+          {
+            "description": "The country to search in, specified in lowercase ISO 3166-1 alpha-2 format.",
+            "name": "country",
+            "type": "string"
+          },
+          {
+            "description": "The expected departure time in ISO 8601 format with a timezone offset (e.g., 2024-12-03T22:26-08:00). Cannot be set if arrival_time is also set.",
+            "name": "departure_time",
+            "type": "string"
+          },
+          {
+            "description": "The language for the results, specified in lowercase ISO 639 Set 1.",
+            "name": "language",
+            "type": "string"
+          },
+          {
+            "description": "The transportation mode to use. Supported modes are driving, walking, bicycling, and transit. driving is the default.",
+            "name": "mode",
+            "type": "string"
+          },
+          {
+            "description": "Specifies the assumptions for calculating time in traffic. Available values are best_guess, pessimistic, and optimistic.",
+            "name": "traffic_model",
+            "type": "string"
+          }
+        ],
+        "param_enums": {
+          "mode": ["driving", "walking", "bicycling", "transit"],
+          "traffic_model": ["best_guess", "pessimistic", "optimistic"]
+        },
+        "required_params": [
+          {
+            "description": "The place_id representing the destination, returned by the search_place tool.",
+            "name": "destination",
+            "type": "string"
+          },
+          {
+            "description": "The place_id representing the origin, returned by the search_place tool.",
+            "name": "origin",
+            "type": "string"
+          }
+        ]
+      },
+      {
+        "description": "Converts a place's information between an address, latitude/longitude coordinates, and a place_id. At least one of place_id, latitude/longitude, or formatted_address must be provided.",
+        "name": "convert_place_id_lat_lon_address",
+        "optional_params": [
+          {
+            "description": "The country to search in, specified in lowercase ISO 3166-1 alpha-2 format.",
+            "name": "country",
+            "type": "string"
+          },
+          {
+            "description": "The formatted address to search for.",
+            "name": "formatted_address",
+            "type": "string"
+          },
+          {
+            "description": "The language for the results, specified in lowercase ISO 639 Set 1.",
+            "name": "language",
+            "type": "string"
+          },
+          {
+            "description": "The latitude to search for. Must be provided with longitude.",
+            "name": "latitude",
+            "type": "number"
+          },
+          {
+            "description": "The longitude to search for. Must be provided with latitude.",
+            "name": "longitude",
+            "type": "number"
+          },
+          {
+            "description": "The unique ID representing the location, returned by the search_place tool.",
+            "name": "place_id",
+            "type": "string"
+          }
+        ],
+        "param_enums": {},
+        "required_params": []
+      },
+      {
+        "description": "Returns canonical information about a set of places based on a string query and allows you to specify which fields to return.",
+        "name": "search_place_and_specify_return_fields",
+        "optional_params": [
+          {
+            "description": "The country to search in, specified in lowercase ISO 3166-1 alpha-2 format.",
+            "name": "country",
+            "type": "string"
+          },
+          {
+            "description": "The place data types to return. Acceptable parameters are formatted_address, geometry, name, place_id, and all. Multiple parameters can be a comma-separated list.",
+            "name": "fields",
+            "type": "string"
+          },
+          {
+            "description": "The language for the results, specified in lowercase ISO 639 Set 1.",
+            "name": "language",
+            "type": "string"
+          },
+          {
+            "description": "The center latitude of the search radius. Must be provided with longitude and radius.",
+            "name": "latitude",
+            "type": "number"
+          },
+          {
+            "description": "The center longitude of the search radius. Must be provided with latitude and radius.",
+            "name": "longitude",
+            "type": "number"
+          },
+          {
+            "description": "Defines the distance (in meters) within which to return place results. The maximum value is 50,000 meters.",
+            "name": "radius",
+            "type": "number"
+          }
+        ],
+        "param_enums": {
+          "fields": ["formatted_address", "geometry", "name", "place_id", "all"]
+        },
+        "required_params": [
+          {
+            "description": "The text string to search for, such as 'restaurant' or '123 Main Street'.",
+            "name": "query",
+            "type": "string"
+          }
+        ]
+      },
+      {
+        "description": "Retrieves more details about a particular establishment by its place_id and allows you to filter which information fields to return.",
+        "name": "place_details_and_specify_return_fields",
+        "optional_params": [
+          {
+            "description": "The country to search in, specified in lowercase ISO 3166-1 alpha-2 format.",
+            "name": "country",
+            "type": "string"
+          },
+          {
+            "description": "The place data types to return. Acceptable parameters include formatted_address, geometry, formatted_phone_number, name, price_level, rating, types, reviews, delivery, reservable, opening_hours, and all. Multiple parameters can be a comma-separated list.",
+            "name": "fields",
+            "type": "string"
+          },
+          {
+            "description": "The language for the results, specified in lowercase ISO 639 Set 1.",
+            "name": "language",
+            "type": "string"
+          }
+        ],
+        "param_enums": {
+          "fields": [
+            "formatted_address",
+            "geometry",
+            "formatted_phone_number",
+            "name",
+            "price_level",
+            "rating",
+            "types",
+            "reviews",
+            "delivery",
+            "reservable",
+            "opening_hours",
+            "all"
+          ]
+        },
+        "required_params": [
+          {
+            "description": "The unique ID representing the location, returned by the search_place tool.",
+            "name": "place_id",
+            "type": "string"
+          }
+        ]
+      },
+      {
+        "description": "Returns a list of addresses of places matching the search query.",
+        "name": "search_place_and_return_address",
+        "optional_params": [
+          {
+            "description": "The country to search in, specified in lowercase ISO 3166-1 alpha-2 format.",
+            "name": "country",
+            "type": "string"
+          },
+          {
+            "description": "The language for the results, specified in lowercase ISO 639 Set 1.",
+            "name": "language",
+            "type": "string"
+          },
+          {
+            "description": "The center latitude of the search radius. Must be provided with longitude and radius.",
+            "name": "latitude",
+            "type": "number"
+          },
+          {
+            "description": "The center longitude of the search radius. Must be provided with latitude and radius.",
+            "name": "longitude",
+            "type": "number"
+          },
+          {
+            "description": "Defines the distance (in meters) within which to return place results. The maximum value is 50,000 meters.",
+            "name": "radius",
+            "type": "number"
+          }
+        ],
+        "param_enums": {},
+        "required_params": [
+          {
+            "description": "The text string to search for, such as 'restaurant' or '123 Main Street'.",
+            "name": "query",
+            "type": "string"
+          }
+        ]
+      },
+      {
+        "description": "Returns a list of names of places matching the search query.",
+        "name": "search_place_and_return_name",
+        "optional_params": [
+          {
+            "description": "The country to search in, specified in lowercase ISO 3166-1 alpha-2 format.",
+            "name": "country",
+            "type": "string"
+          },
+          {
+            "description": "The language for the results, specified in lowercase ISO 639 Set 1.",
+            "name": "language",
+            "type": "string"
+          },
+          {
+            "description": "The center latitude of the search radius. Must be provided with longitude and radius.",
+            "name": "latitude",
+            "type": "number"
+          },
+          {
+            "description": "The center longitude of the search radius. Must be provided with latitude and radius.",
+            "name": "longitude",
+            "type": "number"
+          },
+          {
+            "description": "Defines the distance (in meters) within which to return place results. The maximum value is 50,000 meters.",
+            "name": "radius",
+            "type": "number"
+          }
+        ],
+        "param_enums": {},
+        "required_params": [
+          {
+            "description": "The text string to search for, such as 'restaurant' or '123 Main Street'.",
+            "name": "query",
+            "type": "string"
+          }
+        ]
+      },
+      {
+        "description": "Returns a list of place IDs of places matching the search query.",
+        "name": "search_place_and_return_place_id",
+        "optional_params": [
+          {
+            "description": "The country to search in, specified in lowercase ISO 3166-1 alpha-2 format.",
+            "name": "country",
+            "type": "string"
+          },
+          {
+            "description": "The language for the results, specified in lowercase ISO 639 Set 1.",
+            "name": "language",
+            "type": "string"
+          },
+          {
+            "description": "The center latitude of the search radius. Must be provided with longitude and radius.",
+            "name": "latitude",
+            "type": "number"
+          },
+          {
+            "description": "The center longitude of the search radius. Must be provided with latitude and radius.",
+            "name": "longitude",
+            "type": "number"
+          },
+          {
+            "description": "Defines the distance (in meters) within which to return place results. The maximum value is 50,000 meters.",
+            "name": "radius",
+            "type": "number"
+          }
+        ],
+        "param_enums": {},
+        "required_params": [
+          {
+            "description": "The text string to search for, such as 'restaurant' or '123 Main Street'.",
+            "name": "query",
+            "type": "string"
+          }
+        ]
+      },
+      {
+        "description": "Returns a list of geometry information of places matching the search query.",
+        "name": "search_place_and_return_geometry",
+        "optional_params": [
+          {
+            "description": "The country to search in, specified in lowercase ISO 3166-1 alpha-2 format.",
+            "name": "country",
+            "type": "string"
+          },
+          {
+            "description": "The language for the results, specified in lowercase ISO 639 Set 1.",
+            "name": "language",
+            "type": "string"
+          },
+          {
+            "description": "The center latitude of the search radius. Must be provided with longitude and radius.",
+            "name": "latitude",
+            "type": "number"
+          },
+          {
+            "description": "The center longitude of the search radius. Must be provided with latitude and radius.",
+            "name": "longitude",
+            "type": "number"
+          },
+          {
+            "description": "Defines the distance (in meters) within which to return place results. The maximum value is 50,000 meters.",
+            "name": "radius",
+            "type": "number"
+          }
+        ],
+        "param_enums": {},
+        "required_params": [
+          {
+            "description": "The text string to search for, such as 'restaurant' or '123 Main Street'.",
+            "name": "query",
+            "type": "string"
+          }
+        ]
+      },
+      {
+        "description": "Returns only the geometry information of the searched entity given the place_id, if available.",
+        "name": "place_details_and_return_geometry",
+        "optional_params": [
+          {
+            "description": "The country to search in, specified in lowercase ISO 3166-1 alpha-2 format.",
+            "name": "country",
+            "type": "string"
+          },
+          {
+            "description": "The language for the results, specified in lowercase ISO 639 Set 1.",
+            "name": "language",
+            "type": "string"
+          }
+        ],
+        "param_enums": {},
+        "required_params": [
+          {
+            "description": "The unique ID representing the location, returned by the search_place tool.",
+            "name": "place_id",
+            "type": "string"
+          }
+        ]
+      },
+      {
+        "description": "Returns only the address of the searched entity given the place_id, if available.",
+        "name": "place_details_and_return_address",
+        "optional_params": [
+          {
+            "description": "The country to search in, specified in lowercase ISO 3166-1 alpha-2 format.",
+            "name": "country",
+            "type": "string"
+          },
+          {
+            "description": "The language for the results, specified in lowercase ISO 639 Set 1.",
+            "name": "language",
+            "type": "string"
+          }
+        ],
+        "param_enums": {},
+        "required_params": [
+          {
+            "description": "The unique ID representing the location, returned by the search_place tool.",
+            "name": "place_id",
+            "type": "string"
+          }
+        ]
+      },
+      {
+        "description": "Returns only the phone number of the searched entity given the place_id, if available.",
+        "name": "place_details_and_return_phone_number",
+        "optional_params": [
+          {
+            "description": "The country to search in, specified in lowercase ISO 3166-1 alpha-2 format.",
+            "name": "country",
+            "type": "string"
+          },
+          {
+            "description": "The language for the results, specified in lowercase ISO 639 Set 1.",
+            "name": "language",
+            "type": "string"
+          }
+        ],
+        "param_enums": {},
+        "required_params": [
+          {
+            "description": "The unique ID representing the location, returned by the search_place tool.",
+            "name": "place_id",
+            "type": "string"
+          }
+        ]
+      },
+      {
+        "description": "Returns only the name of the searched entity given the place_id, if available.",
+        "name": "place_details_and_return_name",
+        "optional_params": [
+          {
+            "description": "The country to search in, specified in lowercase ISO 3166-1 alpha-2 format.",
+            "name": "country",
+            "type": "string"
+          },
+          {
+            "description": "The language for the results, specified in lowercase ISO 639 Set 1.",
+            "name": "language",
+            "type": "string"
+          }
+        ],
+        "param_enums": {},
+        "required_params": [
+          {
+            "description": "The unique ID representing the location, returned by the search_place tool.",
+            "name": "place_id",
+            "type": "string"
+          }
+        ]
+      },
+      {
+        "description": "Returns only the price level information of the searched entity given the place_id, if available.",
+        "name": "place_details_and_return_price_level",
+        "optional_params": [
+          {
+            "description": "The country to search in, specified in lowercase ISO 3166-1 alpha-2 format.",
+            "name": "country",
+            "type": "string"
+          },
+          {
+            "description": "The language for the results, specified in lowercase ISO 639 Set 1.",
+            "name": "language",
+            "type": "string"
+          }
+        ],
+        "param_enums": {},
+        "required_params": [
+          {
+            "description": "The unique ID representing the location, returned by the search_place tool.",
+            "name": "place_id",
+            "type": "string"
+          }
+        ]
+      },
+      {
+        "description": "Returns only the rating information of the searched entity given the place_id, if available.",
+        "name": "place_details_and_return_rating",
+        "optional_params": [
+          {
+            "description": "The country to search in, specified in lowercase ISO 3166-1 alpha-2 format.",
+            "name": "country",
+            "type": "string"
+          },
+          {
+            "description": "The language for the results, specified in lowercase ISO 639 Set 1.",
+            "name": "language",
+            "type": "string"
+          }
+        ],
+        "param_enums": {},
+        "required_params": [
+          {
+            "description": "The unique ID representing the location, returned by the search_place tool.",
+            "name": "place_id",
+            "type": "string"
+          }
+        ]
+      },
+      {
+        "description": "Returns only the type information of the searched entity given the place_id, if available.",
+        "name": "place_details_and_return_types",
+        "optional_params": [
+          {
+            "description": "The country to search in, specified in lowercase ISO 3166-1 alpha-2 format.",
+            "name": "country",
+            "type": "string"
+          },
+          {
+            "description": "The language for the results, specified in lowercase ISO 639 Set 1.",
+            "name": "language",
+            "type": "string"
+          }
+        ],
+        "param_enums": {},
+        "required_params": [
+          {
+            "description": "The unique ID representing the location, returned by the search_place tool.",
+            "name": "place_id",
+            "type": "string"
+          }
+        ]
+      },
+      {
+        "description": "Returns only the reviews of the searched entity given the place_id, if available.",
+        "name": "place_details_and_return_reviews",
+        "optional_params": [
+          {
+            "description": "The country to search in, specified in lowercase ISO 3166-1 alpha-2 format.",
+            "name": "country",
+            "type": "string"
+          },
+          {
+            "description": "The language for the results, specified in lowercase ISO 639 Set 1.",
+            "name": "language",
+            "type": "string"
+          }
+        ],
+        "param_enums": {},
+        "required_params": [
+          {
+            "description": "The unique ID representing the location, returned by the search_place tool.",
+            "name": "place_id",
+            "type": "string"
+          }
+        ]
+      },
+      {
+        "description": "Returns only the delivery information (whether the place has a delivery service) of the searched entity given the place_id, if available.",
+        "name": "place_details_and_return_delivery",
+        "optional_params": [
+          {
+            "description": "The country to search in, specified in lowercase ISO 3166-1 alpha-2 format.",
+            "name": "country",
+            "type": "string"
+          },
+          {
+            "description": "The language for the results, specified in lowercase ISO 639 Set 1.",
+            "name": "language",
+            "type": "string"
+          }
+        ],
+        "param_enums": {},
+        "required_params": [
+          {
+            "description": "The unique ID representing the location, returned by the search_place tool.",
+            "name": "place_id",
+            "type": "string"
+          }
+        ]
+      },
+      {
+        "description": "Returns only the reservation information (whether the place is reservable) of the searched entity given the place_id, if available.",
+        "name": "place_details_and_return_reservable",
+        "optional_params": [
+          {
+            "description": "The country to search in, specified in lowercase ISO 3166-1 alpha-2 format.",
+            "name": "country",
+            "type": "string"
+          },
+          {
+            "description": "The language for the results, specified in lowercase ISO 639 Set 1.",
+            "name": "language",
+            "type": "string"
+          }
+        ],
+        "param_enums": {},
+        "required_params": [
+          {
+            "description": "The unique ID representing the location, returned by the search_place tool.",
+            "name": "place_id",
+            "type": "string"
+          }
+        ]
+      },
+      {
+        "description": "Returns only the opening hours information of the searched entity given the place_id, if available.",
+        "name": "place_details_and_return_opening_hours",
+        "optional_params": [
+          {
+            "description": "The country to search in, specified in lowercase ISO 3166-1 alpha-2 format.",
+            "name": "country",
+            "type": "string"
+          },
+          {
+            "description": "The language for the results, specified in lowercase ISO 639 Set 1.",
+            "name": "language",
+            "type": "string"
+          }
+        ],
+        "param_enums": {},
+        "required_params": [
+          {
+            "description": "The unique ID representing the location, returned by the search_place tool.",
+            "name": "place_id",
+            "type": "string"
+          }
+        ]
+      }
+    ],
+    "reddit": [
+      {
+        "description": "Search for content on Reddit across posts, comments, users, or communities.",
+        "name": "search_reddit",
+        "optional_params": [
+          {
+            "description": "The type of content to filter and return. Default: 'posts'. Allowed values: 'posts', 'comments', 'media', 'users', 'communities'. Note: 'users' and 'communities' filters are only available for sitewide searches.",
+            "name": "filter",
+            "type": "string"
+          },
+          {
+            "description": "How to sort the search results. Default: 'relevance'. Allowed values: 'relevance', 'hot', 'top', 'new', 'comments'.",
+            "name": "sort_type",
+            "type": "string"
+          },
+          {
+            "description": "A specific subreddit to search within. Leave None to search sitewide. Example: 'wallstreetbets'. Note: Do not include the 'r/' prefix.",
+            "name": "subreddit",
+            "type": "string"
+          },
+          {
+            "description": "The time period to filter results by. Default: 'all'. Allowed values: 'all', 'year', 'month', 'week', 'day', 'hour'. Note: Only applicable when sort_type is 'relevance' or 'comments'.",
+            "name": "time_filter",
+            "type": "string"
+          }
+        ],
+        "param_enums": {
+          "filter": ["posts", "comments", "media", "users", "communities"],
+          "sort_type": ["relevance", "hot", "top", "new", "comments"],
+          "time_filter": ["all", "year", "month", "week", "day", "hour"]
+        },
+        "required_params": [
+          {
+            "description": "The search term to look for. Can be any keyword or phrase. Example: 'investing', 'best hiking trail in the bay area'.",
+            "name": "search",
+            "type": "string"
+          }
+        ]
+      },
+      {
+        "description": "Get posts from a specific subreddit.",
+        "name": "get_subreddit_posts",
+        "optional_params": [
+          {
+            "description": "The type of posts to retrieve based on Reddit's sorting options. Default: 'hot'. Allowed values: 'hot', 'new', 'top'.",
+            "name": "filter",
+            "type": "string"
+          }
+        ],
+        "param_enums": {
+          "filter": ["hot", "new", "top"]
+        },
+        "required_params": [
+          {
+            "description": "The full URL of the subreddit to get posts from. Must be a valid Reddit subreddit URL. Example: 'https://www.reddit.com/r/wallstreetbets'.",
+            "name": "url",
+            "type": "string"
+          }
+        ]
+      },
+      {
+        "description": "Get detailed information about a specific Reddit post, including comments.",
+        "name": "get_post_details",
+        "optional_params": [],
+        "param_enums": {},
+        "required_params": [
+          {
+            "description": "The full URL of the Reddit post to get details for. Must be a valid Reddit post URL that includes the post ID. Example: 'https://www.reddit.com/r/wallstreetbets/comments/p0esdp/do_hedge_funds_beat_the_market_i_analyzed_the'.",
+            "name": "url",
+            "type": "string"
+          }
+        ]
+      }
+    ],
+    "spotify": [
+      {
+        "description": "Searches across albums, artists, episodes, genres, playlists, podcasts, tracks, and users on Spotify, and returns the top 10 results.",
+        "name": "search_spotify_top_results",
+        "optional_params": [],
+        "param_enums": {},
+        "required_params": [
+          {
+            "description": "The search query for Spotify.",
+            "name": "q",
+            "type": "string"
+          }
+        ]
+      },
+      {
+        "description": "Searches for albums on Spotify.",
+        "name": "search_spotify_albums",
+        "optional_params": [
+          {
+            "description": "Returns a subsequence of the specified length from the whole list.",
+            "name": "limit",
+            "type": "integer"
+          },
+          {
+            "description": "Returns a subsequence from the whole list, starting from the specified offset.",
+            "name": "offset",
+            "type": "integer"
+          }
+        ],
+        "param_enums": {},
+        "required_params": [
+          {
+            "description": "The search query for Spotify.",
+            "name": "q",
+            "type": "string"
+          }
+        ]
+      },
+      {
+        "description": "Searches for artists on Spotify.",
+        "name": "search_spotify_artists",
+        "optional_params": [
+          {
+            "description": "Returns a subsequence of the specified length from the whole list.",
+            "name": "limit",
+            "type": "integer"
+          },
+          {
+            "description": "Returns a subsequence from the whole list, starting from the specified offset.",
+            "name": "offset",
+            "type": "integer"
+          }
+        ],
+        "param_enums": {},
+        "required_params": [
+          {
+            "description": "The search query for Spotify.",
+            "name": "q",
+            "type": "string"
+          }
+        ]
+      },
+      {
+        "description": "Searches for podcast episodes on Spotify.",
+        "name": "search_spotify_episodes",
+        "optional_params": [
+          {
+            "description": "Returns a subsequence of the specified length from the whole list.",
+            "name": "limit",
+            "type": "integer"
+          },
+          {
+            "description": "Returns a subsequence from the whole list, starting from the specified offset.",
+            "name": "offset",
+            "type": "integer"
+          }
+        ],
+        "param_enums": {},
+        "required_params": [
+          {
+            "description": "The search query for Spotify.",
+            "name": "q",
+            "type": "string"
+          }
+        ]
+      },
+      {
+        "description": "Searches for genres on Spotify.",
+        "name": "search_spotify_genres",
+        "optional_params": [
+          {
+            "description": "Returns a subsequence of the specified length from the whole list.",
+            "name": "limit",
+            "type": "integer"
+          },
+          {
+            "description": "Returns a subsequence from the whole list, starting from the specified offset.",
+            "name": "offset",
+            "type": "integer"
+          }
+        ],
+        "param_enums": {},
+        "required_params": [
+          {
+            "description": "The search query for Spotify.",
+            "name": "q",
+            "type": "string"
+          }
+        ]
+      },
+      {
+        "description": "Searches for playlists on Spotify.",
+        "name": "search_spotify_playlists",
+        "optional_params": [
+          {
+            "description": "Returns a subsequence of the specified length from the whole list.",
+            "name": "limit",
+            "type": "integer"
+          },
+          {
+            "description": "Returns a subsequence from the whole list, starting from the specified offset.",
+            "name": "offset",
+            "type": "integer"
+          }
+        ],
+        "param_enums": {},
+        "required_params": [
+          {
+            "description": "The search query for Spotify.",
+            "name": "q",
+            "type": "string"
+          }
+        ]
+      },
+      {
+        "description": "Searches for podcasts on Spotify.",
+        "name": "search_spotify_podcasts",
+        "optional_params": [
+          {
+            "description": "Returns a subsequence of the specified length from the whole list.",
+            "name": "limit",
+            "type": "integer"
+          },
+          {
+            "description": "Returns a subsequence from the whole list, starting from the specified offset.",
+            "name": "offset",
+            "type": "integer"
+          }
+        ],
+        "param_enums": {},
+        "required_params": [
+          {
+            "description": "The search query for Spotify.",
+            "name": "q",
+            "type": "string"
+          }
+        ]
+      },
+      {
+        "description": "Searches for tracks on Spotify.",
+        "name": "search_spotify_tracks",
+        "optional_params": [
+          {
+            "description": "Returns a subsequence of the specified length from the whole list.",
+            "name": "limit",
+            "type": "integer"
+          },
+          {
+            "description": "Returns a subsequence from the whole list, starting from the specified offset.",
+            "name": "offset",
+            "type": "integer"
+          }
+        ],
+        "param_enums": {},
+        "required_params": [
+          {
+            "description": "The search query for Spotify.",
+            "name": "q",
+            "type": "string"
+          }
+        ]
+      },
+      {
+        "description": "Gets detailed info about an album or albums on Spotify, including key metadata, the artist, and tracks.",
+        "name": "spotify_album_details",
+        "optional_params": [],
+        "param_enums": {},
+        "required_params": [
+          {
+            "description": "A single album ID, or multiple IDs separated by a comma.",
+            "name": "ids",
+            "type": "string"
+          }
+        ]
+      },
+      {
+        "description": "Gets profile page info about an artist on Spotify, including their bio, pinned items, and external links.",
+        "name": "spotify_artist_profile",
+        "optional_params": [],
+        "param_enums": {},
+        "required_params": [
+          {
+            "description": "A single artist ID.",
+            "name": "artist_id",
+            "type": "string"
+          }
+        ]
+      },
+      {
+        "description": "Gets discography info about an artist on Spotify, including their albums and singles.",
+        "name": "spotify_artist_discography",
+        "optional_params": [],
+        "param_enums": {},
+        "required_params": [
+          {
+            "description": "A single artist ID.",
+            "name": "artist_id",
+            "type": "string"
+          }
+        ]
+      },
+      {
+        "description": "Gets artist statistics on Spotify, including followers and listeners by region.",
+        "name": "spotify_artist_stats",
+        "optional_params": [],
+        "param_enums": {},
+        "required_params": [
+          {
+            "description": "A single artist ID.",
+            "name": "artist_id",
+            "type": "string"
+          }
+        ]
+      },
+      {
+        "description": "Gets related content for an artist on Spotify, such as content the artist appeared in and related artists.",
+        "name": "spotify_artist_related_content",
+        "optional_params": [],
+        "param_enums": {},
+        "required_params": [
+          {
+            "description": "A single artist ID.",
+            "name": "artist_id",
+            "type": "string"
+          }
+        ]
+      },
+      {
+        "description": "Gets events and merchandise for an artist on Spotify.",
+        "name": "spotify_artist_goods",
+        "optional_params": [],
+        "param_enums": {},
+        "required_params": [
+          {
+            "description": "A single artist ID.",
+            "name": "artist_id",
+            "type": "string"
+          }
+        ]
+      },
+      {
+        "description": "Gets detailed info about a track or tracks on Spotify.",
+        "name": "spotify_track_details",
+        "optional_params": [],
+        "param_enums": {},
+        "required_params": [
+          {
+            "description": "A single track ID or comma-separated IDs.",
+            "name": "track_ids",
+            "type": "string"
+          }
+        ]
+      },
+      {
+        "description": "Gets credit info about a track or tracks on Spotify.",
+        "name": "spotify_track_credits",
+        "optional_params": [],
+        "param_enums": {},
+        "required_params": [
+          {
+            "description": "A single track ID.",
+            "name": "track_id",
+            "type": "string"
+          }
+        ]
+      },
+      {
+        "description": "Gets tracks within a playlist on Spotify.",
+        "name": "spotify_playlist_tracks",
+        "optional_params": [
+          {
+            "description": "Returns a subsequence of the specified length from the whole list.",
+            "name": "limit",
+            "type": "integer"
+          },
+          {
+            "description": "Returns a subsequence from the whole list, starting from the specified offset.",
+            "name": "offset",
+            "type": "integer"
+          }
+        ],
+        "param_enums": {},
+        "required_params": [
+          {
+            "description": "A single playlist ID.",
+            "name": "playlist_id",
+            "type": "string"
+          }
+        ]
+      },
+      {
+        "description": "Gets details of a podcast episode on Spotify.",
+        "name": "spotify_episode_detail",
+        "optional_params": [],
+        "param_enums": {},
+        "required_params": [
+          {
+            "description": "A single episode ID.",
+            "name": "episode_id",
+            "type": "string"
+          }
+        ]
+      }
+    ],
+    "system_settings": [
+      {
+        "description": "Gets the current system settings, including cellular service status, Wi-Fi status, location service status, low battery mode status, locale information, and timezone information (as a UTC offset in seconds).",
+        "name": "get_system_settings",
+        "optional_params": [],
+        "param_enums": {},
+        "required_params": []
+      },
+      {
+        "description": "Sets the current system settings. At least one value must be provided.",
+        "name": "set_system_settings",
+        "optional_params": [
+          {
+            "description": "True to turn on cellular service, False otherwise.",
+            "name": "cellular",
+            "type": "boolean"
+          },
+          {
+            "description": "The locale to set, in the form of <language>_<COUNTRY> (e.g., en_US).",
+            "name": "locale",
+            "type": "string"
+          },
+          {
+            "description": "True to turn on location service, False otherwise.",
+            "name": "location_service",
+            "type": "boolean"
+          },
+          {
+            "description": "True to turn on low battery mode, False otherwise.",
+            "name": "low_battery_mode",
+            "type": "boolean"
+          },
+          {
+            "description": "The timezone to set, as the number of offset seconds from UTC (e.g., -28800 represents UTC−08:00).",
+            "name": "utc_offset_seconds",
+            "type": "integer"
+          },
+          {
+            "description": "True to turn on Wi-Fi service, False otherwise.",
+            "name": "wifi",
+            "type": "boolean"
+          }
+        ],
+        "param_enums": {},
+        "required_params": []
+      },
+      {
+        "description": "Returns the current location's latitude, longitude, UUID, and address.",
+        "name": "get_current_location",
+        "optional_params": [],
+        "param_enums": {},
+        "required_params": []
+      },
+      {
+        "description": "Gets the current cellular service status.",
+        "name": "get_cellular_status",
+        "optional_params": [],
+        "param_enums": {},
+        "required_params": []
+      },
+      {
+        "description": "Gets the current Wi-Fi service status.",
+        "name": "get_wifi_status",
+        "optional_params": [],
+        "param_enums": {},
+        "required_params": []
+      },
+      {
+        "description": "Gets the current location service status.",
+        "name": "get_location_service_status",
+        "optional_params": [],
+        "param_enums": {},
+        "required_params": []
+      },
+      {
+        "description": "Gets the current low battery mode status.",
+        "name": "get_low_battery_mode_status",
+        "optional_params": [],
+        "param_enums": {},
+        "required_params": []
+      },
+      {
+        "description": "Gets the current system locale, which contains the language and location code separated by an underscore.",
+        "name": "get_locale",
+        "optional_params": [],
+        "param_enums": {},
+        "required_params": []
+      },
+      {
+        "description": "Gets the current timezone, expressed in UTC offset in seconds (e.g., -28800 represents UTC−08:00).",
+        "name": "get_timezone_utc_offset_seconds",
+        "optional_params": [],
+        "param_enums": {},
+        "required_params": []
+      },
+      {
+        "description": "Requests the current latitude.",
+        "name": "get_current_latitude",
+        "optional_params": [],
+        "param_enums": {},
+        "required_params": []
+      },
+      {
+        "description": "Requests the current longitude.",
+        "name": "get_current_longitude",
+        "optional_params": [],
+        "param_enums": {},
+        "required_params": []
+      },
+      {
+        "description": "Requests the UUID of the current location, which can be used to query location detail information in map domain tools.",
+        "name": "get_current_place_id",
+        "optional_params": [],
+        "param_enums": {},
+        "required_params": []
+      },
+      {
+        "description": "Requests the formatted address of the current location.",
+        "name": "get_current_formatted_address",
+        "optional_params": [],
+        "param_enums": {},
+        "required_params": []
+      },
+      {
+        "description": "Sets the current cellular service status.",
+        "name": "set_cellular_status",
+        "optional_params": [],
+        "param_enums": {},
+        "required_params": [
+          {
+            "description": "True to turn on cellular service, False otherwise.",
+            "name": "status",
+            "type": "boolean"
+          }
+        ]
+      },
+      {
+        "description": "Sets the current Wi-Fi service status.",
+        "name": "set_wifi_status",
+        "optional_params": [],
+        "param_enums": {},
+        "required_params": [
+          {
+            "description": "True to turn on Wi-Fi service, False otherwise.",
+            "name": "status",
+            "type": "boolean"
+          }
+        ]
+      },
+      {
+        "description": "Sets the current location service status.",
+        "name": "set_location_service_status",
+        "optional_params": [],
+        "param_enums": {},
+        "required_params": [
+          {
+            "description": "True to turn on location service, False otherwise.",
+            "name": "status",
+            "type": "boolean"
+          }
+        ]
+      },
+      {
+        "description": "Sets the current low battery mode status.",
+        "name": "set_low_battery_mode_status",
+        "optional_params": [],
+        "param_enums": {},
+        "required_params": [
+          {
+            "description": "True to turn on low battery mode, False otherwise.",
+            "name": "status",
+            "type": "boolean"
+          }
+        ]
+      },
+      {
+        "description": "Sets the current system locale.",
+        "name": "set_locale",
+        "optional_params": [],
+        "param_enums": {},
+        "required_params": [
+          {
+            "description": "The locale to set, in the form of <language>_<COUNTRY> (e.g., en_US).",
+            "name": "locale",
+            "type": "string"
+          }
+        ]
+      },
+      {
+        "description": "Sets the current system timezone.",
+        "name": "set_timezone_utc_offset_seconds",
+        "optional_params": [],
+        "param_enums": {},
+        "required_params": [
+          {
+            "description": "The timezone to set, as the number of offset seconds from UTC (e.g., -28800 represents UTC−08:00).",
+            "name": "utc_offset_seconds",
+            "type": "integer"
+          }
+        ]
+      },
+      {
+        "description": "Returns information for a specific system settings field.",
+        "name": "get_system_settings_field",
+        "optional_params": [],
+        "param_enums": {
+          "field": [
+            "cellular",
+            "wifi",
+            "location_service",
+            "low_battery_mode",
+            "locale",
+            "utc_offset_seconds"
+          ]
+        },
+        "required_params": [
+          {
+            "description": "The name of the system setting to retrieve. Choose from cellular, wifi, location_service, low_battery_mode, locale, utc_offset_seconds.",
+            "name": "field",
+            "type": "string"
+          }
+        ]
+      },
+      {
+        "description": "Requests current location information based on a specific field.",
+        "name": "get_current_location_field",
+        "optional_params": [],
+        "param_enums": {
+          "field": ["latitude", "longitude", "place_id", "formatted_address"]
+        },
+        "required_params": [
+          {
+            "description": "The name of the current location info to retrieve. Choose from latitude, longitude, place_id, formatted_address.",
+            "name": "field",
+            "type": "string"
+          }
+        ]
+      }
+    ],
+    "time": [
+      {
+        "description": "Gets the current time, represented in an ISO 8601 datetime string with a UTC offset.",
+        "name": "get_current_iso_8601_datetime_with_utc_offset",
+        "optional_params": [],
+        "param_enums": {},
+        "required_params": []
+      },
+      {
+        "description": "Given an ISO 8601 datetime string with a UTC offset, finds its ISO weekday (from 1 for Monday to 7 for Sunday).",
+        "name": "iso_8601_datetime_with_utc_offset_to_iso_weekday",
+        "optional_params": [],
+        "param_enums": {},
+        "required_params": [
+          {
+            "description": "The ISO 8601 datetime string with a UTC offset.",
+            "name": "datetime_str",
+            "type": "string"
+          }
+        ]
+      }
+    ],
+    "web_event_search": [
+      {
+        "description": "Performs a real-time web search over a webpage index based on a textual query and returns a list of search results. NOTE: This tool is able to get contextual information from the web pages it is retrieving in search results",
+        "name": "web_search",
+        "optional_params": [],
+        "param_enums": {},
+        "required_params": [
+          {
+            "description": "A concise search query targeted for a search engine.",
+            "name": "query",
+            "type": "string"
+          }
+        ]
+      },
+      {
+        "description": "Searches for a weather forecast.",
+        "name": "weather_forecast",
+        "optional_params": [
+          {
+            "description": "The number of forecast days required (between 1 and 14). This should not be provided with dt.",
+            "name": "days",
+            "type": "integer"
+          },
+          {
+            "description": "The forecast date in mm/dd/yyyy format, which should be between today and the next 14 days. This should not be provided with days.",
+            "name": "dt",
+            "type": "string"
+          }
+        ],
+        "param_enums": {},
+        "required_params": [
+          {
+            "description": "A comma-separated string containing the latitude and longitude (e.g., 48.8567,2.3508).",
+            "name": "latlng",
+            "type": "string"
+          }
+        ]
+      },
+      {
+        "description": "Searches for local events based on a search query and returns a list of up to 10 results at a time.",
+        "name": "search_events",
+        "optional_params": [
+          {
+            "description": "The date for the event. Choose from any, today, tomorrow, week, weekend, next_week, month, next_month.",
+            "name": "date",
+            "type": "string"
+          },
+          {
+            "description": "If True, only virtual events will be returned.",
+            "name": "is_virtual",
+            "type": "boolean"
+          },
+          {
+            "description": "The starting index within the search result list. Use this to offset and find the next 10 results.",
+            "name": "start",
+            "type": "integer"
+          }
+        ],
+        "param_enums": {
+          "date": [
+            "any",
+            "today",
+            "tomorrow",
+            "week",
+            "weekend",
+            "next_week",
+            "month",
+            "next_month"
+          ]
+        },
+        "required_params": [
+          {
+            "description": "The search query, including the location (e.g., 'Concert in San Francisco').",
+            "name": "query",
+            "type": "string"
+          }
+        ]
+      }
+    ],
+    "web_scraping": [
+      {
+        "description": "Scrapes a web page's URL and returns the body content, with light boilerplate removal.",
+        "name": "scrape_webpage",
+        "optional_params": [],
+        "param_enums": {},
+        "required_params": [
+          {
+            "description": "The URL to be scraped.",
+            "name": "url",
+            "type": "string"
+          }
+        ]
+      }
+    ],
+    "yelp": [
+      {
+        "description": "Searches for businesses in yelp. Returns a dict containing a list of search results, including basic info about the businesses.",
+        "name": "search_yelp",
+        "optional_params": [
+          {
+            "description": "Number of results per page.",
+            "name": "limit",
+            "type": "integer"
+          },
+          {
+            "description": "If offset is set to 0, it means start from zero. If offset is set to 20, it means to start showing after 20 results.",
+            "name": "offset",
+            "type": "integer"
+          }
+        ],
+        "param_enums": {},
+        "required_params": [
+          {
+            "description": "String describing the region to search in. Enter exact locations. For example, use Roosevelt, NY not Roosevelt only.",
+            "name": "location",
+            "type": "string"
+          },
+          {
+            "description": "Enter any search term you want, just like on Yelp. Ex. Coffee shop, Pizza shop, electrician, or plumber Ex. Black Owned Saloon, Mexican pizza shop",
+            "name": "search_term",
+            "type": "string"
+          }
+        ]
+      },
+      {
+        "description": "Get business details from Yelp.",
+        "name": "business_details",
+        "optional_params": [],
+        "param_enums": {},
+        "required_params": [
+          {
+            "description": "Comma-separated strings representing business ids. You can put up to 39 business ids on each request.",
+            "name": "business_ids",
+            "type": "string"
+          }
+        ]
+      },
+      {
+        "description": "Get business reviews from Yelp.",
+        "name": "business_reviews",
+        "optional_params": [
+          {
+            "description": "Business id.",
+            "name": "business_id",
+            "type": "string"
+          },
+          {
+            "description": "Next page token. For next pages, if hasNextPage = true : Input the end_cursor value found from the response of the previous page to get reviews of the next page.",
+            "name": "end_cursor",
+            "type": "string"
+          },
+          {
+            "description": "Only view reviews with the specified rating. Choose from All_ratings, 5_stars, 4_stars, 3_stars, 2_stars, 1_star.",
+            "name": "rating_filter",
+            "type": "string"
+          },
+          {
+            "description": "Number of reviews per page.",
+            "name": "reviews_per_page",
+            "type": "integer"
+          },
+          {
+            "description": "Sorting criteria. Choose from Yelp_sort, Newest_first, Oldest_first, Highest_rated, Lowest_rated, Elites.",
+            "name": "sort_by",
+            "type": "string"
+          }
+        ],
+        "param_enums": {
+          "rating_filter": [
+            "All_ratings",
+            "5_stars",
+            "4_stars",
+            "3_stars",
+            "2_stars",
+            "1_star"
+          ],
+          "sort_by": [
+            "Yelp_sort",
+            "Newest_first",
+            "Oldest_first",
+            "Highest_rated",
+            "Lowest_rated",
+            "Elites"
+          ]
+        },
+        "required_params": []
+      },
+      {
+        "description": "Get the menu from a Yelp business, if available.",
+        "name": "business_menu",
+        "optional_params": [],
+        "param_enums": {},
+        "required_params": [
+          {
+            "description": "A string representing the business ID.",
+            "name": "business_id",
+            "type": "string"
+          }
+        ]
+      },
+      {
+        "description": "Get the popular dishes from a Yelp business, if available.",
+        "name": "business_popular_dishes",
+        "optional_params": [],
+        "param_enums": {},
+        "required_params": [
+          {
+            "description": "A string representing the business ID.",
+            "name": "business_id",
+            "type": "string"
+          }
+        ]
+      }
+    ]
+  }
+}

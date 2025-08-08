@@ -1,25 +1,38 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import toolSchema from "@/data/agent-completion-grader-tool-schema.json"; // full schema
 
 export default function MassEval() {
-  const [model, setModel] = useState("openai/o4-mini");
+  const [model, setModel] = useState("openai/gpt-5");
   const [systemPrompt, setSystemPrompt] = useState("");
   const [savedSystemPrompt, setSavedSystemPrompt] = useState("");
-  const [prompt, setPrompt] = useState("");
+  const [rulesList, setRulesList] = useState([]);
+  const [savedRulesList, setSavedRulesList] = useState([]);
+  const [prompt, setPrompt] = useState(
+    "Please grade the following content based on the rules described in the system prompt."
+  );
   const [content, setContent] = useState("");
   const [response, setResponse] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [responseType, setResponseType] = useState(""); // 'success', 'error', 'loading'
+  const [responseType, setResponseType] = useState("");
+
+  // Collapsible section states
+  const [isSystemPromptCollapsed, setIsSystemPromptCollapsed] = useState(false);
+  const [isRulesListCollapsed, setIsRulesListCollapsed] = useState(false);
+  const [isPromptCollapsed, setIsPromptCollapsed] = useState(false);
+  const [isContentCollapsed, setIsContentCollapsed] = useState(false);
 
   // Load stored data on mount
   useEffect(() => {
     const storedModel = localStorage.getItem("mass-eval-model");
     const storedPrompt = localStorage.getItem("mass-eval-prompt");
+    const storedContent = localStorage.getItem("mass-eval-content");
 
     if (storedModel) setModel(storedModel);
     if (storedPrompt) setPrompt(storedPrompt);
-    loadSystemPrompt();
+    if (storedContent) setContent(storedContent);
+    loadSystemPromptAndRules();
   }, []);
 
   // Save to localStorage when model or prompt changes
@@ -31,51 +44,55 @@ export default function MassEval() {
     localStorage.setItem("mass-eval-prompt", prompt);
   }, [prompt]);
 
-  const loadSystemPrompt = async () => {
+  useEffect(() => {
+    localStorage.setItem("mass-eval-content", content);
+  }, [content]);
+
+  const loadSystemPromptAndRules = async () => {
     try {
       const response = await fetch("/api/system-prompt");
       if (response.ok) {
         const data = await response.json();
-        const promptText = data.systemPrompt || "";
-        setSystemPrompt(promptText);
-        setSavedSystemPrompt(promptText);
+        setSystemPrompt(data.systemPrompt || "");
+        setSavedSystemPrompt(data.systemPrompt || "");
+        setRulesList(data.rulesList || []);
+        setSavedRulesList(data.rulesList || []);
       } else {
         console.error(
-          "Failed to load system prompt:",
+          "Failed to load system prompt/rules:",
           response.status,
           response.statusText
         );
       }
     } catch (error) {
-      console.error("Error loading system prompt:", error);
+      console.error("Error loading system prompt/rules:", error);
     }
   };
 
-  const saveSystemPrompt = async () => {
+  const saveSystemPromptAndRules = async () => {
     try {
       const response = await fetch("/api/system-prompt", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ systemPrompt }),
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ systemPrompt, rulesList }),
       });
 
       if (response.ok) {
         setSavedSystemPrompt(systemPrompt);
-        showSuccess("System prompt saved successfully!");
+        setSavedRulesList(rulesList);
+        showSuccess("System prompt and rules saved successfully!");
       } else {
-        console.error("Failed to save system prompt");
-        showError("Failed to save system prompt");
+        showError("Failed to save system prompt/rules");
       }
     } catch (error) {
-      console.error("Error saving system prompt:", error);
-      showError("Error saving system prompt");
+      console.error("Error saving system prompt/rules:", error);
+      showError("Error saving system prompt/rules");
     }
   };
 
-  const discardSystemPrompt = () => {
+  const discardSystemPromptAndRules = () => {
     setSystemPrompt(savedSystemPrompt);
+    setRulesList(savedRulesList);
   };
 
   const showSuccess = (message) => {
@@ -88,41 +105,77 @@ export default function MassEval() {
     setResponse(message);
   };
 
+  // Extract tool names from conversation JSON
+  const extractToolNames = (conversation) => {
+    const toolNames = new Set();
+    conversation.forEach((turn) => {
+      if (turn.role === "assistant" && turn.tool_call) {
+        toolNames.add(turn.tool_call.name);
+      }
+    });
+    return Array.from(toolNames);
+  };
+
+  // Map tool names to categories and return subset schema
+  const getToolSubset = (conversation) => {
+    const toolNames = extractToolNames(conversation);
+    const subset = {};
+
+    for (const [category, tools] of Object.entries(toolSchema.tools)) {
+      const matchingTools = tools.filter((tool) =>
+        toolNames.includes(tool.name)
+      );
+      if (matchingTools.length > 0) {
+        subset[category] = matchingTools;
+      }
+    }
+    return subset;
+  };
+
   const evaluateContent = async () => {
     if (isLoading) return;
 
-    // Validation
     if (!model) {
       showError("Please select a model");
       return;
     }
-
     if (!prompt.trim()) {
       showError("Please enter a prompt");
       return;
     }
-
     if (!content.trim()) {
       showError("Please enter content to evaluate");
       return;
     }
+
+    let conversation;
+    try {
+      conversation = JSON.parse(content);
+    } catch (err) {
+      showError("Content must be valid JSON representing the conversation");
+      return;
+    }
+
+    const subsetSchema = getToolSubset(conversation);
 
     setIsLoading(true);
     setResponseType("loading");
     setResponse("");
 
     try {
-      const fullPrompt = `${prompt}\n\nContent to evaluate:\n${content}`;
-
       const response = await fetch("/api/evaluate", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           model,
           systemPrompt: systemPrompt.trim(),
-          prompt: fullPrompt,
+          rulesList,
+          prompt: `${prompt}\n\nContent to evaluate:\n${JSON.stringify(
+            conversation,
+            null,
+            2
+          )}`,
+          toolSchemaSubset: subsetSchema,
         }),
       });
 
@@ -133,7 +186,6 @@ export default function MassEval() {
         );
       }
 
-      // Handle streaming response
       const reader = response.body.getReader();
       const decoder = new TextDecoder();
       let fullResponse = "";
@@ -143,7 +195,6 @@ export default function MassEval() {
       while (true) {
         const { done, value } = await reader.read();
         if (done) break;
-
         const chunk = decoder.decode(value);
         fullResponse += chunk;
         setResponse(fullResponse);
@@ -156,11 +207,13 @@ export default function MassEval() {
     }
   };
 
-  const hasSystemPromptChanges = systemPrompt !== savedSystemPrompt;
+  const hasChanges =
+    systemPrompt !== savedSystemPrompt ||
+    JSON.stringify(rulesList) !== JSON.stringify(savedRulesList);
 
   return (
     <div className="container">
-      <h1>Mass Evaluation Tool</h1>
+      <h1>Mass Evaluation Tool (Grader Version)</h1>
 
       <div className="eval-container">
         <div className="config-section">
@@ -171,13 +224,20 @@ export default function MassEval() {
               value={model}
               onChange={(e) => setModel(e.target.value)}
             >
-              <option value="openai/o4-mini">GPT-o4 Mini</option>
+              <option value="openai/gpt-5">GPT-5</option>
+              <option value="openai/gpt-5-mini">GPT-5 Mini</option>
               <option value="openai/o4-mini-high">GPT-o4 Mini High</option>
+              <option value="openai/o4-mini">GPT-o4 Mini</option>
+              <option value="openai/gpt-oss-120b">GPT-OSS-120B</option>
+              <option value="openai/gpt-oss-20b">GPT-OSS-20B</option>
               <option value="openai/o3">GPT-o3</option>
               <option value="anthropic/claude-3.7-sonnet">
                 Claude 3.7 Sonnet
               </option>
               <option value="anthropic/claude-sonnet-4">Claude Sonnet 4</option>
+              <option value="anthropic/claude-opus-4.1">
+                Claude Opus 4.1 (VERY EXPENSIVE)
+              </option>
               <option value="google/gemini-2.5-flash">Gemini 2.5 Flash</option>
               <option value="google/gemini-2.5-pro">Gemini 2.5 Pro</option>
               <option value="deepseek/deepseek-r1-0528:free">
@@ -185,95 +245,178 @@ export default function MassEval() {
               </option>
             </select>
           </div>
-
-          <div className="form-group">
-            <label htmlFor="system-prompt">System Prompt:</label>
-            <textarea
-              id="system-prompt"
-              placeholder="Enter a system prompt to guide the AI's behavior..."
-              rows="3"
-              value={systemPrompt}
-              onChange={(e) => setSystemPrompt(e.target.value)}
-            />
-            <div className="system-prompt-buttons">
-              <button
-                id="save-system-prompt"
-                className="save-button"
-                disabled={!hasSystemPromptChanges}
-                onClick={saveSystemPrompt}
-              >
-                Save Changes
-              </button>
-              <button
-                id="discard-system-prompt"
-                className="discard-button"
-                disabled={!hasSystemPromptChanges}
-                onClick={discardSystemPrompt}
-              >
-                Discard Changes
-              </button>
-            </div>
-          </div>
         </div>
 
-        <div className="input-section">
-          <div className="form-group">
-            <label htmlFor="prompt-input">Prompt:</label>
-            <textarea
-              id="prompt-input"
-              placeholder="Enter your evaluation prompt here..."
-              rows="6"
-              value={prompt}
-              onChange={(e) => setPrompt(e.target.value)}
-            />
+        <div className="collapsible-section">
+          <div
+            className="section-header"
+            onClick={() => setIsSystemPromptCollapsed(!isSystemPromptCollapsed)}
+          >
+            <h3>
+              System Prompt
+              <span
+                className={`collapse-indicator ${
+                  isSystemPromptCollapsed ? "collapsed" : ""
+                }`}
+              >
+                ▼
+              </span>
+            </h3>
           </div>
+          {!isSystemPromptCollapsed && (
+            <div className="section-content">
+              <div className="form-group">
+                <textarea
+                  id="system-prompt"
+                  rows="3"
+                  value={systemPrompt}
+                  onChange={(e) => setSystemPrompt(e.target.value)}
+                />
+              </div>
+              <div className="system-prompt-buttons">
+                <button
+                  disabled={!hasChanges}
+                  onClick={saveSystemPromptAndRules}
+                >
+                  Save Changes
+                </button>
+                <button
+                  disabled={!hasChanges}
+                  onClick={discardSystemPromptAndRules}
+                >
+                  Discard Changes
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
 
-          <div className="form-group">
-            <label htmlFor="content-input">Content to Evaluate:</label>
-            <textarea
-              id="content-input"
-              placeholder="Enter the content you want to evaluate..."
-              rows="8"
-              value={content}
-              onChange={(e) => setContent(e.target.value)}
-            />
+        <div className="collapsible-section">
+          <div
+            className="section-header"
+            onClick={() => setIsRulesListCollapsed(!isRulesListCollapsed)}
+          >
+            <h3>
+              Rules List (JSON)
+              <span
+                className={`collapse-indicator ${
+                  isRulesListCollapsed ? "collapsed" : ""
+                }`}
+              >
+                ▼
+              </span>
+            </h3>
           </div>
+          {!isRulesListCollapsed && (
+            <div className="section-content">
+              <div className="form-group">
+                <textarea
+                  id="rules-list"
+                  rows="6"
+                  value={JSON.stringify(rulesList, null, 2)}
+                  onChange={(e) => {
+                    try {
+                      setRulesList(JSON.parse(e.target.value));
+                    } catch {
+                      // ignore invalid JSON while typing
+                    }
+                  }}
+                />
+              </div>
+            </div>
+          )}
+        </div>
 
+        <div className="collapsible-section">
+          <div
+            className="section-header"
+            onClick={() => setIsPromptCollapsed(!isPromptCollapsed)}
+          >
+            <h3>
+              Prompt
+              <span
+                className={`collapse-indicator ${
+                  isPromptCollapsed ? "collapsed" : ""
+                }`}
+              >
+                ▼
+              </span>
+            </h3>
+          </div>
+          {!isPromptCollapsed && (
+            <div className="section-content">
+              <div className="form-group">
+                <textarea
+                  id="prompt-input"
+                  rows="6"
+                  value={prompt}
+                  onChange={(e) => setPrompt(e.target.value)}
+                />
+              </div>
+            </div>
+          )}
+        </div>
+
+        <div className="collapsible-section">
+          <div
+            className="section-header"
+            onClick={() => setIsContentCollapsed(!isContentCollapsed)}
+          >
+            <h3>
+              Content to Evaluate (JSON)
+              <span
+                className={`collapse-indicator ${
+                  isContentCollapsed ? "collapsed" : ""
+                }`}
+              >
+                ▼
+              </span>
+            </h3>
+          </div>
+          {!isContentCollapsed && (
+            <div className="section-content">
+              <div className="form-group">
+                <div className="textarea-with-button">
+                  <textarea
+                    id="content-input"
+                    rows="8"
+                    value={content}
+                    onChange={(e) => setContent(e.target.value)}
+                  />
+                  {content.trim() && (
+                    <button
+                      type="button"
+                      className="clear-button"
+                      onClick={() => setContent("")}
+                      title="Clear content"
+                    >
+                      Clear
+                    </button>
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+
+        <div className="evaluate-button-section">
           <button
-            id="evaluate-btn"
             className="evaluate-button"
             onClick={evaluateContent}
             disabled={isLoading}
           >
-            {isLoading ? "Evaluating..." : "Evaluate Content"}
+            {isLoading ? "Grading..." : "Grade Content"}
           </button>
         </div>
 
         <div className="response-section">
           <div className="form-group">
-            <label htmlFor="response-display">Response:</label>
-            <div id="response-display" className="response-area">
-              {responseType === "loading" && (
-                <div className="loading">
-                  <div className="spinner"></div>
-                  <span>Evaluating content...</span>
-                </div>
-              )}
-              {responseType === "success" && response && (
-                <>
-                  <div className="success">
-                    <strong>Evaluation Complete!</strong>
-                  </div>
-                  <div className="response-content">{response}</div>
-                </>
-              )}
+            <label>Response:</label>
+            <div className="response-area">
+              {responseType === "loading" && <div>Evaluating content...</div>}
+              {responseType === "success" && <div>{response}</div>}
               {responseType === "error" && (
-                <div className="error">
-                  <strong>Error:</strong> {response}
-                </div>
-              )}
-              {!responseType && (
-                <p className="placeholder-text">Response will appear here...</p>
+                <div className="error">{response}</div>
               )}
             </div>
           </div>
