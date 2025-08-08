@@ -1,0 +1,184 @@
+[
+  {
+    "criteria": "If a user turn contains more than one distinct fact, preference, or constraint, it fails.",
+    "description": "Each user turn must provide only one new piece of context.",
+    "rule_id": "lazy_user_single_context",
+    "scope": "per_turn",
+    "severity": "hard"
+  },
+  {
+    "criteria": "If the user provides details without being prompted by the assistant, fail.",
+    "description": "Lazy User must not volunteer information unless explicitly asked.",
+    "rule_id": "lazy_user_no_extra_info",
+    "scope": "per_turn",
+    "severity": "hard"
+  },
+  {
+    "criteria": "If the user answers more than one question in a single turn, fail.",
+    "description": "If the assistant asks multiple questions, the Lazy User must answer only one.",
+    "rule_id": "lazy_user_answer_one_question_only",
+    "scope": "per_turn",
+    "severity": "hard"
+  },
+  {
+    "criteria": "If the system prompt specifies a name or title for the user, all assistant turns must use it exactly.",
+    "description": "Responses must follow naming conventions in the system prompt.",
+    "rule_id": "system_prompt_name_consistency",
+    "scope": "per_turn",
+    "severity": "hard"
+  },
+  {
+    "criteria": "Count all messages where role = 'user'. If fewer than 10, fail.",
+    "description": "The conversation must contain at least 10 user turns. A user turn is any message where role = 'user'.",
+    "rule_id": "minimum_user_turns",
+    "scope": "conversation",
+    "severity": "hard"
+  },
+  {
+    "criteria": "Iterate through the conversation in order, ignoring any 'system' role messages. When a 'user' role message is found, count 1 turn and skip the next 'assistant' message (if present) as part of that same turn. Any 'assistant' message that is not immediately preceded by a 'user' message is counted as its own turn. If fewer than 20 total turns are counted, fail.",
+    "description": "The conversation must contain at least 20 total turns. A total turn is defined as either: (1) a user message and the first assistant message immediately following it, counted together as one turn, or (2) any assistant message that is not directly preceded by a user message, counted as its own turn. System messages are excluded.",
+    "rule_id": "minimum_total_turns",
+    "scope": "conversation",
+    "severity": "hard"
+  },
+  {
+    "criteria": "Count unique tool calls across all turns. If fewer than 3, fail.",
+    "description": "At least 3 distinct tools must be used in the conversation.",
+    "rule_id": "minimum_tools_used",
+    "scope": "conversation",
+    "severity": "hard"
+  },
+  {
+    "criteria": "If a tool call is missing any required parameter from the schema, fail.",
+    "description": "All required parameters for a tool call must be present.",
+    "rule_id": "tool_required_params_present",
+    "scope": "per_turn",
+    "severity": "hard"
+  },
+  {
+    "criteria": "If a tool call includes a parameter not in required_params or optional_params, fail.",
+    "description": "Tool calls must not include parameters not defined in the schema.",
+    "rule_id": "tool_no_extra_params",
+    "scope": "per_turn",
+    "severity": "hard"
+  },
+  {
+    "criteria": "If a tool call uses a value not in the allowed enum list for that parameter, fail.",
+    "description": "Enum parameters must use only allowed values.",
+    "rule_id": "tool_enum_values_valid",
+    "scope": "per_turn",
+    "severity": "hard"
+  },
+  {
+    "criteria": "If the assistant's text contradicts the tool_response JSON, fail.",
+    "description": "Assistant summaries must match the tool_response data.",
+    "rule_id": "tool_response_consistency",
+    "scope": "per_turn",
+    "severity": "hard"
+  },
+  {
+    "criteria": "If the assistant answers with text when a tool should have been used, fail.",
+    "description": "If a relevant tool is available for the request, it must be used.",
+    "rule_id": "no_tool_triggered_when_required",
+    "scope": "per_turn",
+    "severity": "hard"
+  },
+  {
+    "criteria": "If the assistant calls a tool for general knowledge or unnecessary cases, fail.",
+    "description": "Tools should not be used when a text response is sufficient.",
+    "rule_id": "no_tool_used_when_not_needed",
+    "scope": "per_turn",
+    "severity": "soft"
+  },
+  {
+    "criteria": "If a tool fails due to settings (e.g., WiFi off) and the assistant does not correct the state before retrying, fail.",
+    "description": "If a tool fails due to system state, the assistant must identify and resolve the state before retrying.",
+    "rule_id": "state_dependency_handling",
+    "scope": "per_turn",
+    "severity": "hard"
+  },
+  {
+    "criteria": "If the assistant repeats the same incorrect call without correction, fail.",
+    "description": "If a tool call fails due to incorrect parameters, the assistant must retry with corrected parameters.",
+    "rule_id": "error_recovery",
+    "scope": "per_turn",
+    "severity": "hard"
+  },
+  {
+    "criteria": "If the assistant fails to return to the original task after a detour, fail.",
+    "description": "If the user switches tasks mid-conversation, the assistant must handle the detour and return to the original task.",
+    "rule_id": "task_switching",
+    "scope": "conversation",
+    "severity": "soft"
+  },
+  {
+    "criteria": "If the assistant stops after a failed search without refinement, fail.",
+    "description": "If an initial search yields no results, the assistant must refine the search query or try alternative tools.",
+    "rule_id": "search_refinement",
+    "scope": "per_turn",
+    "severity": "hard"
+  },
+  {
+    "criteria": "If the assistant misinterprets relative or fuzzy time references when calling tools, fail.",
+    "description": "The assistant must correctly interpret and convert complex date/time references.",
+    "rule_id": "datetime_reasoning",
+    "scope": "per_turn",
+    "severity": "hard"
+  },
+  {
+    "criteria": "If the assistant makes independent tool calls sequentially instead of in parallel, fail.",
+    "description": "Independent tool calls should be made in parallel when possible.",
+    "rule_id": "parallel_tool_calls_when_possible",
+    "scope": "per_turn",
+    "severity": "soft"
+  },
+  {
+    "criteria": "If the assistant calls the same tool with the same parameters without new context, fail.",
+    "description": "The assistant must not repeat tool calls unnecessarily.",
+    "rule_id": "no_redundant_tool_calls",
+    "scope": "per_turn",
+    "severity": "soft"
+  },
+  {
+    "criteria": "If the assistant's tone or style deviates from the system prompt's instructions, fail.",
+    "description": "The assistant must maintain the tone and persona defined in the system prompt.",
+    "rule_id": "persona_tone_consistency",
+    "scope": "per_turn",
+    "severity": "soft"
+  },
+  {
+    "criteria": "If the assistant provides unsupported or fabricated information, fail.",
+    "description": "The assistant must not invent facts not supported by tool responses or general knowledge.",
+    "rule_id": "no_hallucinated_info",
+    "scope": "per_turn",
+    "severity": "hard"
+  },
+  {
+    "criteria": "If the assistant uses a tool for a static, widely known fact, fail.",
+    "description": "General knowledge questions should be answered directly without tools.",
+    "rule_id": "general_knowledge_text_only",
+    "scope": "per_turn",
+    "severity": "soft"
+  },
+  {
+    "criteria": "If the assistant tries to fulfill an infeasible request or asks unnecessary follow-ups, fail.",
+    "description": "If a request cannot be fulfilled with available tools, the assistant must state this immediately without asking clarifying questions.",
+    "rule_id": "infeasible_tool_request_handling",
+    "scope": "per_turn",
+    "severity": "hard"
+  },
+  {
+    "criteria": "If a fail is reported without a snippet, fail.",
+    "description": "When marking a fail, the grader must include the exact snippet that caused it.",
+    "rule_id": "no_missing_snippets_in_failures",
+    "scope": "per_turn",
+    "severity": "hard"
+  },
+  {
+    "criteria": "If a rule result is missing a confidence score, fail.",
+    "description": "Every rule check must include a confidence score between 0 and 1.",
+    "rule_id": "no_missing_confidence_scores",
+    "scope": "per_turn",
+    "severity": "hard"
+  }
+]
