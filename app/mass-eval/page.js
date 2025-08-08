@@ -16,12 +16,16 @@ export default function MassEval() {
   );
   const [content, setContent] = useState("");
   const [response, setResponse] = useState("");
-  const [maxTokens, setMaxTokens] = useState(20000);
+  const [maxTokens, setMaxTokens] = useState(50000);
   const [isLoading, setIsLoading] = useState(false);
   const [responseType, setResponseType] = useState("");
+  const [reasoning, setReasoning] = useState("");
+  const [reasoningDone, setReasoningDone] = useState(false);
+  const [responseDone, setResponseDone] = useState(false);
+  const [hadError, setHadError] = useState(false);
 
   // Streaming debug controls
-  const [debugStreaming, setDebugStreaming] = useState(true);
+  const [debugStreaming, setDebugStreaming] = useState(false);
   const [slowDelayMs, setSlowDelayMs] = useState(0);
   const [streamLogs, setStreamLogs] = useState([]);
   const [showReasoning, setShowReasoning] = useState(true);
@@ -40,6 +44,9 @@ export default function MassEval() {
   const [isRulesListCollapsed, setIsRulesListCollapsed] = useState(false);
   const [isPromptCollapsed, setIsPromptCollapsed] = useState(false);
   const [isContentCollapsed, setIsContentCollapsed] = useState(false);
+  const [isReasoningCollapsed, setIsReasoningCollapsed] = useState(false);
+  const [isResponseCollapsed, setIsResponseCollapsed] = useState(false);
+  const [isDebugCollapsed, setIsDebugCollapsed] = useState(true);
 
   // Load stored data on mount
   useEffect(() => {
@@ -182,14 +189,22 @@ export default function MassEval() {
     setIsLoading(true);
     setResponseType("loading");
     setResponse("");
+    // Reset all UI + buffers
     setStreamLogs([]);
+    setRawSseLines([]);
+    setResponse("");
+    setReasoning("");
+    setReasoningDone(false);
+    setResponseDone(false);
+    setHadError(false);
 
     try {
       const response = await fetch("/api/evaluate", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "x-client-stream": debugStreaming ? "sse" : "plain",
+          // Always request SSE so reasoning/content JSON deltas stream regardless of debug UI
+          "x-client-stream": "sse",
         },
         body: JSON.stringify({
           model,
@@ -208,22 +223,22 @@ export default function MassEval() {
       // Log the exact outbound payload from the client
       try {
         // eslint-disable-next-line no-console
-        console.debug("[mass-eval] outbound payload", {
-          model,
-          systemPromptLength: systemPrompt.trim().length,
-          rulesCount: rulesList.length,
-          promptLength: `${prompt}\n\nContent to evaluate:\n${JSON.stringify(
-            conversation,
-            null,
-            2
-          )}`.length,
-          toolSchemaSubsetKeys: Object.keys(subsetSchema || {}).length,
-          promptPreview: `${prompt}\n\nContent to evaluate:\n${JSON.stringify(
-            conversation,
-            null,
-            2
-          )}`.slice(0, 240),
-        });
+        // console.debug("[mass-eval] outbound payload", {
+        //   model,
+        //   systemPromptLength: systemPrompt.trim().length,
+        //   rulesCount: rulesList.length,
+        //   promptLength: `${prompt}\n\nContent to evaluate:\n${JSON.stringify(
+        //     conversation,
+        //     null,
+        //     2
+        //   )}`.length,
+        //   toolSchemaSubsetKeys: Object.keys(subsetSchema || {}).length,
+        //   promptPreview: `${prompt}\n\nContent to evaluate:\n${JSON.stringify(
+        //     conversation,
+        //     null,
+        //     2
+        //   )}`.slice(0, 240),
+        // });
       } catch {}
 
       if (!response.ok) {
@@ -354,9 +369,7 @@ export default function MassEval() {
 
             // Render joined result
             fullResponse = contentBuffer;
-            if (showReasoning && reasoningBuffer) {
-              fullResponse += `\n\n---\nREASONING (streamed):\n${reasoningBuffer}`;
-            }
+            setReasoning(reasoningBuffer);
           }
         } else {
           fullResponse += text;
@@ -379,15 +392,30 @@ export default function MassEval() {
         }
 
         setResponse(fullResponse);
+
+        // Auto-scroll the reasoning and response panels to bottom as we stream
+        try {
+          const areas = document.querySelectorAll(
+            ".collapsible-section .section-content .response-area"
+          );
+          areas.forEach((el) => {
+            el.scrollTop = el.scrollHeight;
+          });
+        } catch {}
       }
 
       if (debugStreaming) {
         const t = Math.round(performance.now() - startAtMs);
         setStreamLogs((prev) => [...prev, { type: "done", t }]);
       }
+
+      // Mark streams complete (unless we threw earlier)
+      setReasoningDone((prev) => prev || true);
+      setResponseDone((prev) => prev || true);
     } catch (error) {
       console.error("Evaluation error:", error);
       showError(`Error: ${error.message}`);
+      setHadError(true);
     } finally {
       setIsLoading(false);
     }
@@ -397,328 +425,426 @@ export default function MassEval() {
     systemPrompt !== savedSystemPrompt ||
     JSON.stringify(rulesList) !== JSON.stringify(savedRulesList);
 
+  // TODO: Make all buttons disabled in logical states like empty/unchanged text areas
   return (
-    <div className="container">
+    <div className="container mass-eval">
       <h1>Mass Evaluation Tool (Grader Version)</h1>
 
       <div className="eval-container">
+        {/* Top row controls */}
         <div className="config-section">
-          <div className="form-group">
-            <label htmlFor="model-select">Model:</label>
-            <select
-              id="model-select"
-              value={model}
-              onChange={(e) => setModel(e.target.value)}
-            >
-              <option value="openai/gpt-5">GPT-5</option>
-              <option value="openai/gpt-5-mini">GPT-5 Mini</option>
-              <option value="openai/o4-mini-high">GPT-o4 Mini High</option>
-              <option value="openai/o4-mini">GPT-o4 Mini</option>
-              <option value="openai/gpt-oss-120b">GPT-OSS-120B</option>
-              <option value="openai/gpt-oss-20b">GPT-OSS-20B</option>
-              <option value="openai/o3">GPT-o3</option>
-              <option value="anthropic/claude-3.7-sonnet">
-                Claude 3.7 Sonnet
-              </option>
-              <option value="anthropic/claude-sonnet-4">Claude Sonnet 4</option>
-              <option value="anthropic/claude-opus-4.1">
-                Claude Opus 4.1 (VERY EXPENSIVE)
-              </option>
-              <option value="google/gemini-2.5-flash">Gemini 2.5 Flash</option>
-              <option value="google/gemini-2.5-pro">Gemini 2.5 Pro</option>
-              <option value="deepseek/deepseek-r1-0528:free">
-                Deepseek R1
-              </option>
-            </select>
-          </div>
-          <div className="form-group" style={{ marginTop: 8 }}>
-            <label htmlFor="max-tokens">Max response tokens:</label>
-            <input
-              id="max-tokens"
-              type="number"
-              min={256}
-              step={256}
-              value={maxTokens}
-              onChange={(e) =>
-                setMaxTokens(parseInt(e.target.value || "0", 10) || 0)
-              }
-              style={{ marginLeft: 8, width: 140 }}
-            />
-          </div>
-        </div>
-
-        <div className="collapsible-section">
-          <div
-            className="section-header"
-            onClick={() => setIsSystemPromptCollapsed(!isSystemPromptCollapsed)}
-          >
-            <h3>
-              System Prompt
-              <span
-                className={`collapse-indicator ${
-                  isSystemPromptCollapsed ? "collapsed" : ""
-                }`}
+          <div className="eval-columns">
+            <div className="form-group" style={{ flex: 1 }}>
+              <label htmlFor="model-select">Model:</label>
+              <select
+                id="model-select"
+                value={model}
+                onChange={(e) => setModel(e.target.value)}
               >
-                ▼
-              </span>
-            </h3>
-          </div>
-          {!isSystemPromptCollapsed && (
-            <div className="section-content">
-              <div className="form-group">
-                <textarea
-                  id="system-prompt"
-                  rows="3"
-                  value={systemPrompt}
-                  onChange={(e) => setSystemPrompt(e.target.value)}
-                />
-              </div>
-              <div className="system-prompt-buttons">
-                <button
-                  disabled={!hasChanges}
-                  onClick={saveSystemPromptAndRules}
-                >
-                  Save Changes
-                </button>
-                <button
-                  disabled={!hasChanges}
-                  onClick={discardSystemPromptAndRules}
-                >
-                  Discard Changes
-                </button>
-              </div>
+                <option value="openai/gpt-5">GPT-5</option>
+                <option value="openai/gpt-5-mini">GPT-5 Mini</option>
+                <option value="openai/o4-mini-high">GPT-o4 Mini High</option>
+                <option value="openai/o4-mini">GPT-o4 Mini</option>
+                <option value="openai/gpt-oss-120b">GPT-OSS-120B</option>
+                <option value="openai/gpt-oss-20b">GPT-OSS-20B</option>
+                <option value="openai/o3">GPT-o3</option>
+                <option value="anthropic/claude-3.7-sonnet">
+                  Claude 3.7 Sonnet
+                </option>
+                <option value="anthropic/claude-sonnet-4">
+                  Claude Sonnet 4
+                </option>
+                <option value="anthropic/claude-opus-4.1">
+                  Claude Opus 4.1 (VERY EXPENSIVE)
+                </option>
+                <option value="google/gemini-2.5-flash">
+                  Gemini 2.5 Flash
+                </option>
+                <option value="google/gemini-2.5-pro">Gemini 2.5 Pro</option>
+                <option value="deepseek/deepseek-r1-0528:free">
+                  Deepseek R1
+                </option>
+              </select>
             </div>
-          )}
-        </div>
-
-        <div className="collapsible-section">
-          <div
-            className="section-header"
-            onClick={() => setIsRulesListCollapsed(!isRulesListCollapsed)}
-          >
-            <h3>
-              Rules List (JSON)
-              <span
-                className={`collapse-indicator ${
-                  isRulesListCollapsed ? "collapsed" : ""
-                }`}
-              >
-                ▼
-              </span>
-            </h3>
-          </div>
-          {!isRulesListCollapsed && (
-            <div className="section-content">
-              <div className="form-group">
-                <textarea
-                  id="rules-list"
-                  rows="6"
-                  value={JSON.stringify(rulesList, null, 2)}
-                  onChange={(e) => {
-                    try {
-                      setRulesList(JSON.parse(e.target.value));
-                    } catch {
-                      // ignore invalid JSON while typing
-                    }
-                  }}
-                />
-              </div>
-            </div>
-          )}
-        </div>
-
-        <div className="collapsible-section">
-          <div
-            className="section-header"
-            onClick={() => setIsPromptCollapsed(!isPromptCollapsed)}
-          >
-            <h3>
-              Prompt
-              <span
-                className={`collapse-indicator ${
-                  isPromptCollapsed ? "collapsed" : ""
-                }`}
-              >
-                ▼
-              </span>
-            </h3>
-          </div>
-          {!isPromptCollapsed && (
-            <div className="section-content">
-              <div className="form-group">
-                <textarea
-                  id="prompt-input"
-                  rows="6"
-                  value={prompt}
-                  onChange={(e) => setPrompt(e.target.value)}
-                />
-              </div>
-            </div>
-          )}
-        </div>
-
-        <div className="collapsible-section">
-          <div
-            className="section-header"
-            onClick={() => setIsContentCollapsed(!isContentCollapsed)}
-          >
-            <h3>
-              Content to Evaluate (JSON)
-              <span
-                className={`collapse-indicator ${
-                  isContentCollapsed ? "collapsed" : ""
-                }`}
-              >
-                ▼
-              </span>
-            </h3>
-          </div>
-          {!isContentCollapsed && (
-            <div className="section-content">
-              <div className="form-group">
-                <div className="textarea-with-button">
-                  <textarea
-                    id="content-input"
-                    rows="8"
-                    value={content}
-                    onChange={(e) => setContent(e.target.value)}
-                  />
-                  {content.trim() && (
-                    <button
-                      type="button"
-                      className="clear-button"
-                      onClick={() => setContent("")}
-                      title="Clear content"
-                    >
-                      Clear
-                    </button>
-                  )}
-                </div>
-              </div>
-            </div>
-          )}
-        </div>
-
-        <div className="evaluate-button-section">
-          <button
-            className="evaluate-button"
-            onClick={evaluateContent}
-            disabled={isLoading}
-          >
-            {isLoading ? "Grading..." : "Grade Content"}
-          </button>
-        </div>
-
-        <div className="response-section">
-          <div className="form-group">
-            <label>Response:</label>
-            <div className="response-area">
-              {responseType === "loading" && <div>Evaluating content...</div>}
-              {responseType === "success" && <div>{response}</div>}
-              {responseType === "error" && (
-                <div className="error">{response}</div>
-              )}
-            </div>
-            <div style={{ marginTop: 8 }}>
-              <button
-                className="button primary copy-button"
-                type="button"
-                onClick={() => copyToClipboard(response)}
-              >
-                Copy response
-              </button>
-            </div>
-          </div>
-          <div className="form-group" style={{ marginTop: "12px" }}>
-            <label style={{ display: "flex", alignItems: "center", gap: 8 }}>
+            <div className="form-group" style={{ width: 250 }}>
+              <label htmlFor="max-tokens">Max response tokens:</label>
               <input
-                type="checkbox"
-                checked={debugStreaming}
-                onChange={(e) => setDebugStreaming(e.target.checked)}
+                id="max-tokens"
+                type="number"
+                min={256}
+                step={256}
+                value={maxTokens}
+                onChange={(e) =>
+                  setMaxTokens(parseInt(e.target.value || "0", 10) || 0)
+                }
+                className="small-number-input"
               />
-              Enable streaming debug
-            </label>
-            {debugStreaming && (
-              <div style={{ marginTop: 8 }}>
-                <label>
-                  Per-chunk delay (ms):
-                  <input
-                    type="number"
-                    min="0"
-                    step="10"
-                    value={slowDelayMs}
-                    onChange={(e) =>
-                      setSlowDelayMs(parseInt(e.target.value || "0", 10))
-                    }
-                    style={{ marginLeft: 8, width: 100 }}
-                  />
-                </label>
-                <div
-                  style={{
-                    marginTop: 8,
-                    maxHeight: 200,
-                    overflow: "auto",
-                    fontFamily:
-                      "ui-monospace, SFMono-Regular, Menlo, monospace",
-                    fontSize: 12,
-                    border: "1px solid #ddd",
-                    padding: 8,
-                    background: "#fafafa",
-                  }}
-                >
-                  {streamLogs.length === 0 && <div>No streaming logs yet.</div>}
-                  {streamLogs.map((log, idx) => (
-                    <div key={idx}>
-                      {log.type === "headers" && (
-                        <div>
-                          <strong>[0ms] headers</strong>{" "}
-                          {JSON.stringify(log.headers)}
-                        </div>
-                      )}
-                      {log.type === "chunk" && (
-                        <div>
-                          <strong>[{log.t}ms] chunk</strong> bytes={log.bytes}{" "}
-                          preview="{log.preview}"
-                        </div>
-                      )}
-                      {log.type === "done" && (
-                        <div>
-                          <strong>[{log.t}ms] done</strong>
-                        </div>
-                      )}
-                    </div>
-                  ))}
-                </div>
-                <div style={{ marginTop: 12 }}>
-                  <label>Raw stream (data: lines)</label>
-                  <textarea
-                    readOnly
-                    rows={8}
-                    value={(rawSseLines && rawSseLines.length
-                      ? rawSseLines.join("\n")
-                      : ""
-                    ).toString()}
-                    style={{
-                      width: "100%",
-                      fontFamily:
-                        "ui-monospace, SFMono-Regular, Menlo, monospace",
-                      fontSize: 12,
-                    }}
-                  />
-                  <div style={{ marginTop: 8 }}>
+            </div>
+          </div>
+        </div>
+
+        <div className="eval-columns">
+          <div className="eval-left">
+            <div className="collapsible-section">
+              <div
+                className="section-header"
+                onClick={() =>
+                  setIsSystemPromptCollapsed(!isSystemPromptCollapsed)
+                }
+              >
+                <h3>
+                  System Prompt
+                  <span
+                    className={`collapse-indicator ${
+                      isSystemPromptCollapsed ? "collapsed" : ""
+                    }`}
+                  >
+                    ▼
+                  </span>
+                </h3>
+              </div>
+              {!isSystemPromptCollapsed && (
+                <div className="section-content">
+                  <div className="form-group">
+                    <textarea
+                      id="system-prompt"
+                      rows="3"
+                      value={systemPrompt}
+                      onChange={(e) => setSystemPrompt(e.target.value)}
+                    />
+                  </div>
+                  <div className="system-prompt-buttons">
                     <button
-                      className="button primary copy-button"
-                      type="button"
-                      onClick={() =>
-                        copyToClipboard((rawSseLines || []).join("\n"))
-                      }
+                      disabled={!hasChanges}
+                      onClick={saveSystemPromptAndRules}
                     >
-                      Copy debug stream
+                      Save Changes
+                    </button>
+                    <button
+                      disabled={!hasChanges}
+                      onClick={discardSystemPromptAndRules}
+                    >
+                      Discard Changes
                     </button>
                   </div>
                 </div>
+              )}
+            </div>
+
+            <div className="collapsible-section">
+              <div
+                className="section-header"
+                onClick={() => setIsRulesListCollapsed(!isRulesListCollapsed)}
+              >
+                <h3>
+                  Rules List (JSON)
+                  <span
+                    className={`collapse-indicator ${
+                      isRulesListCollapsed ? "collapsed" : ""
+                    }`}
+                  >
+                    ▼
+                  </span>
+                </h3>
               </div>
-            )}
+              {!isRulesListCollapsed && (
+                <div className="section-content">
+                  <div className="form-group">
+                    {/* TODO: Make editable and add a button to save changes */}
+                    <textarea
+                      id="rules-list"
+                      rows="6"
+                      value={JSON.stringify(rulesList, null, 2)}
+                      onChange={(e) => {
+                        try {
+                          setRulesList(JSON.parse(e.target.value));
+                        } catch {
+                          // ignore invalid JSON while typing
+                        }
+                      }}
+                    />
+                  </div>
+                </div>
+              )}
+            </div>
+
+            <div className="collapsible-section">
+              <div
+                className="section-header"
+                onClick={() => setIsPromptCollapsed(!isPromptCollapsed)}
+              >
+                <h3>
+                  Prompt
+                  <span
+                    className={`collapse-indicator ${
+                      isPromptCollapsed ? "collapsed" : ""
+                    }`}
+                  >
+                    ▼
+                  </span>
+                </h3>
+              </div>
+              {!isPromptCollapsed && (
+                <div className="section-content">
+                  <div className="form-group">
+                    {/* TODO: Add a button to save/clear changes */}
+                    <textarea
+                      id="prompt-input"
+                      rows="6"
+                      value={prompt}
+                      onChange={(e) => setPrompt(e.target.value)}
+                    />
+                  </div>
+                </div>
+              )}
+            </div>
+
+            <div className="collapsible-section">
+              <div
+                className="section-header"
+                onClick={() => setIsContentCollapsed(!isContentCollapsed)}
+              >
+                <h3>
+                  Content to Evaluate (JSON)
+                  <span
+                    className={`collapse-indicator ${
+                      isContentCollapsed ? "collapsed" : ""
+                    }`}
+                  >
+                    ▼
+                  </span>
+                </h3>
+              </div>
+              {!isContentCollapsed && (
+                <div className="section-content">
+                  <div className="form-group">
+                    <div className="textarea-with-button">
+                      <textarea
+                        id="content-input"
+                        rows="8"
+                        value={content}
+                        onChange={(e) => setContent(e.target.value)}
+                      />
+                      {content.trim() && (
+                        <button
+                          type="button"
+                          className="clear-button"
+                          onClick={() => setContent("")}
+                          title="Clear content"
+                        >
+                          Clear
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            <div className="evaluate-button-section">
+              <button
+                className="evaluate-button"
+                onClick={evaluateContent}
+                disabled={isLoading}
+              >
+                {isLoading ? "Grading..." : "Grade Content"}
+              </button>
+            </div>
+          </div>
+
+          <div className="eval-right">
+            {/* Reasoning Panel */}
+            <div className="collapsible-section">
+              <div
+                className="section-header"
+                onClick={() => setIsReasoningCollapsed(!isReasoningCollapsed)}
+              >
+                <h3>
+                  Reasoning (streamed)
+                  <span
+                    className={`collapse-indicator ${
+                      isReasoningCollapsed ? "collapsed" : ""
+                    }`}
+                  >
+                    ▼
+                  </span>
+                </h3>
+              </div>
+              {!isReasoningCollapsed && (
+                <div className="section-content">
+                  <div
+                    className={`response-area ${
+                      hadError
+                        ? "border-error"
+                        : reasoningDone
+                        ? "border-success"
+                        : ""
+                    }`}
+                  >
+                    {reasoning ? (
+                      <div>{reasoning}</div>
+                    ) : (
+                      <div className="placeholder-text">No reasoning yet.</div>
+                    )}
+                  </div>
+                  <div className="mt-8">
+                    <button
+                      className="button primary copy-button"
+                      type="button"
+                      onClick={() => copyToClipboard(reasoning)}
+                    >
+                      Copy reasoning
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Response Panel */}
+            <div className="collapsible-section">
+              <div
+                className="section-header"
+                onClick={() => setIsResponseCollapsed(!isResponseCollapsed)}
+              >
+                <h3>
+                  Response
+                  <span
+                    className={`collapse-indicator ${
+                      isResponseCollapsed ? "collapsed" : ""
+                    }`}
+                  >
+                    ▼
+                  </span>
+                </h3>
+              </div>
+              {!isResponseCollapsed && (
+                <div className="section-content">
+                  <div
+                    className={`response-area ${
+                      hadError
+                        ? "border-error"
+                        : responseDone
+                        ? "border-success"
+                        : ""
+                    }`}
+                  >
+                    {responseType === "loading" && (
+                      <div>Evaluating content...</div>
+                    )}
+                    {responseType === "success" && <div>{response}</div>}
+                    {responseType === "error" && (
+                      <div className="error">{response}</div>
+                    )}
+                  </div>
+                  <div className="mt-8">
+                    <button
+                      className="button primary copy-button"
+                      type="button"
+                      onClick={() => copyToClipboard(response)}
+                    >
+                      Copy response
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Streaming Debug Panel */}
+            <div className="collapsible-section">
+              <div
+                className="section-header"
+                onClick={() => setIsDebugCollapsed(!isDebugCollapsed)}
+              >
+                <h3>
+                  Streaming debug
+                  <span
+                    className={`collapse-indicator ${
+                      isDebugCollapsed ? "collapsed" : ""
+                    }`}
+                  >
+                    ▼
+                  </span>
+                </h3>
+              </div>
+              {!isDebugCollapsed && (
+                <div className="section-content">
+                  <div className="stream-panel">
+                    <label className="inline-checkbox-label">
+                      <input
+                        type="checkbox"
+                        checked={debugStreaming}
+                        onChange={(e) => setDebugStreaming(e.target.checked)}
+                      />
+                      Enable streaming debug
+                    </label>
+                    <label>
+                      Per-chunk delay (ms):
+                      <input
+                        type="number"
+                        min="0"
+                        step="10"
+                        value={slowDelayMs}
+                        onChange={(e) =>
+                          setSlowDelayMs(parseInt(e.target.value || "0", 10))
+                        }
+                        className="small-number-input"
+                      />
+                    </label>
+
+                    <div className="stream-logs">
+                      {streamLogs.length === 0 && (
+                        <div>No streaming logs yet.</div>
+                      )}
+                      {streamLogs.map((log, idx) => (
+                        <div key={idx}>
+                          {log.type === "headers" && (
+                            <div>
+                              <strong>[0ms] headers</strong>{" "}
+                              {JSON.stringify(log.headers)}
+                            </div>
+                          )}
+                          {log.type === "chunk" && (
+                            <div>
+                              <strong>[{log.t}ms] chunk</strong> bytes=
+                              {log.bytes} preview="{log.preview}"
+                            </div>
+                          )}
+                          {log.type === "done" && (
+                            <div>
+                              <strong>[{log.t}ms] done</strong>
+                            </div>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+
+                    <div className="stream-raw">
+                      <label>Raw stream (data: lines)</label>
+                      <textarea
+                        readOnly
+                        rows={8}
+                        value={(rawSseLines && rawSseLines.length
+                          ? rawSseLines.join("\n")
+                          : ""
+                        ).toString()}
+                        className="stream-textarea"
+                      />
+                      <div className="mt-8">
+                        <button
+                          className="button primary copy-button"
+                          type="button"
+                          onClick={() =>
+                            copyToClipboard((rawSseLines || []).join("\n"))
+                          }
+                        >
+                          Copy debug stream
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </div>

@@ -22,9 +22,14 @@ Your job:
   - `reason` (concise but clear; longer if nuance is needed)
   - `snippet` (exact text or JSON fragment that triggered the fail, if available)
 - Over-flag: if unsure, mark `pass: false` with lower confidence.
-- Never omit a rule check, even if it obviously passes.
 
-Output format:
+**Filtering requirement:**
+- In `per_turn_results`, only include turns where at least one rule has `pass: false` OR `confidence` < 1.0.
+- In `conversation_level_results`, only include rules where `pass: false` OR `confidence` < 1.0.
+- Completely omit turns and conversation-level rules that pass with full confidence (pass: true AND confidence = 1.0).
+
+**Output format:**
+Return ONLY valid JSON in the following structure, with no commentary, no headers, and no extra text before or after:
 {
   "per_turn_results": [
     {
@@ -59,7 +64,8 @@ Grading process:
 3. For the whole conversation:
    - Apply all conversation-level rules.
    - Reference specific turns in the reason when applicable.
-4. Return the JSON output exactly in the specified format.
+4. Apply the filtering requirement before outputting results.
+5. Return only the filtered JSON in the exact format above.
 
 If a rule references tool usage, validate against the provided tool schema subset. If a rule references persona or tone, validate against the conversation's system prompt.
 

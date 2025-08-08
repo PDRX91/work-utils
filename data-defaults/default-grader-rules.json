@@ -28,15 +28,15 @@
     "severity": "hard"
   },
   {
-    "criteria": "Count user turns. If fewer than 10, fail.",
-    "description": "The conversation must contain at least 10 user turns.",
+    "criteria": "Count all messages where role = 'user'. If fewer than 10, fail.",
+    "description": "The conversation must contain at least 10 user turns. A user turn is any message where role = 'user'.",
     "rule_id": "minimum_user_turns",
     "scope": "conversation",
     "severity": "hard"
   },
   {
-    "criteria": "Count all turns. If fewer than 20, fail.",
-    "description": "The conversation must contain at least 20 total turns.",
+    "criteria": "Iterate through the conversation in order, ignoring any 'system' role messages. When a 'user' role message is found, count 1 turn and skip the next 'assistant' message (if present) as part of that same turn. Any 'assistant' message that is not immediately preceded by a 'user' message is counted as its own turn. If fewer than 20 total turns are counted, fail.",
+    "description": "The conversation must contain at least 20 total turns. A total turn is defined as either: (1) a user message and the first assistant message immediately following it, counted together as one turn, or (2) any assistant message that is not directly preceded by a user message, counted as its own turn. System messages are excluded.",
     "rule_id": "minimum_total_turns",
     "scope": "conversation",
     "severity": "hard"
