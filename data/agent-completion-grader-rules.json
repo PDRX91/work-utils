@@ -29,14 +29,14 @@
   },
   {
     "criteria": "Count user turns. If fewer than 10, fail.",
-    "description": "The conversation must contain at least 10 user turns.",
+    "description": "The conversation must contain at least 10 user turns. Each set of content and role in the json is a turn but its only a user turn if the role is 'user'",
     "rule_id": "minimum_user_turns",
     "scope": "conversation",
     "severity": "hard"
   },
   {
     "criteria": "Count all turns. If fewer than 20, fail.",
-    "description": "The conversation must contain at least 20 total turns.",
+    "description": "The conversation must contain at least 20 total turns. Each set of content and role in the json is a turn",
     "rule_id": "minimum_total_turns",
     "scope": "conversation",
     "severity": "hard"

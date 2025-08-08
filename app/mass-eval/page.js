@@ -4,7 +4,9 @@ import { useState, useEffect } from "react";
 import toolSchema from "@/data/agent-completion-grader-tool-schema.json"; // full schema
 
 export default function MassEval() {
-  const [model, setModel] = useState("openai/gpt-5");
+  const [model, setModel] = useState(
+    localStorage.getItem("mass-eval-model") ?? "google/gemini-2.5-pro"
+  );
   const [systemPrompt, setSystemPrompt] = useState("");
   const [savedSystemPrompt, setSavedSystemPrompt] = useState("");
   const [rulesList, setRulesList] = useState([]);
@@ -16,6 +18,11 @@ export default function MassEval() {
   const [response, setResponse] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [responseType, setResponseType] = useState("");
+
+  // Streaming debug controls
+  const [debugStreaming, setDebugStreaming] = useState(false);
+  const [slowDelayMs, setSlowDelayMs] = useState(0);
+  const [streamLogs, setStreamLogs] = useState([]);
 
   // Collapsible section states
   const [isSystemPromptCollapsed, setIsSystemPromptCollapsed] = useState(false);
@@ -32,6 +39,9 @@ export default function MassEval() {
     if (storedModel) setModel(storedModel);
     if (storedPrompt) setPrompt(storedPrompt);
     if (storedContent) setContent(storedContent);
+
+    document.getElementById("model-select").value = model;
+
     loadSystemPromptAndRules();
   }, []);
 
@@ -161,11 +171,15 @@ export default function MassEval() {
     setIsLoading(true);
     setResponseType("loading");
     setResponse("");
+    setStreamLogs([]);
 
     try {
       const response = await fetch("/api/evaluate", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          "x-client-stream": debugStreaming ? "sse" : "plain",
+        },
         body: JSON.stringify({
           model,
           systemPrompt: systemPrompt.trim(),
@@ -179,6 +193,27 @@ export default function MassEval() {
         }),
       });
 
+      // Log the exact outbound payload from the client
+      try {
+        // eslint-disable-next-line no-console
+        console.debug("[mass-eval] outbound payload", {
+          model,
+          systemPromptLength: systemPrompt.trim().length,
+          rulesCount: rulesList.length,
+          promptLength: `${prompt}\n\nContent to evaluate:\n${JSON.stringify(
+            conversation,
+            null,
+            2
+          )}`.length,
+          toolSchemaSubsetKeys: Object.keys(subsetSchema || {}).length,
+          promptPreview: `${prompt}\n\nContent to evaluate:\n${JSON.stringify(
+            conversation,
+            null,
+            2
+          )}`.slice(0, 240),
+        });
+      } catch {}
+
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
         throw new Error(
@@ -186,18 +221,78 @@ export default function MassEval() {
         );
       }
 
-      const reader = response.body.getReader();
+      const reader = response.body?.getReader();
+      if (!reader) {
+        throw new Error("Readable stream not available on response.body");
+      }
+      const isSse = response.headers
+        .get("content-type")
+        ?.includes("text/event-stream");
       const decoder = new TextDecoder();
       let fullResponse = "";
+      const startAtMs = performance.now();
 
       setResponseType("success");
 
+      if (debugStreaming) {
+        const headersObj = {};
+        response.headers.forEach((v, k) => {
+          headersObj[k] = v;
+        });
+        setStreamLogs((prev) => [
+          ...prev,
+          { type: "headers", t: 0, headers: headersObj },
+        ]);
+      }
+
+      let carry = "";
       while (true) {
         const { done, value } = await reader.read();
         if (done) break;
-        const chunk = decoder.decode(value);
-        fullResponse += chunk;
+        const text = decoder.decode(value, { stream: true });
+
+        if (isSse) {
+          carry += text;
+          const lines = carry.split(/\r?\n/);
+          carry = lines.pop() || "";
+          for (const raw of lines) {
+            if (!raw) continue;
+            if (raw.startsWith(":")) continue; // SSE comment
+            if (!raw.startsWith("data:")) continue;
+            const data = raw.slice(5).trim();
+            if (!data) continue;
+            if (data === "[DONE]") {
+              // will break on next loop when reader is done
+              continue;
+            }
+            fullResponse += data + "\n";
+          }
+        } else {
+          fullResponse += text;
+        }
+
+        if (debugStreaming) {
+          const t = Math.round(performance.now() - startAtMs);
+          const bytes = value?.byteLength ?? 0;
+          const preview = text.slice(0, 120);
+          // eslint-disable-next-line no-console
+          console.debug("[stream] chunk", { tMs: t, bytes, preview });
+          setStreamLogs((prev) => [
+            ...prev,
+            { type: "chunk", t, bytes, preview },
+          ]);
+          if (slowDelayMs && slowDelayMs > 0) {
+            // eslint-disable-next-line no-await-in-loop
+            await new Promise((r) => setTimeout(r, slowDelayMs));
+          }
+        }
+
         setResponse(fullResponse);
+      }
+
+      if (debugStreaming) {
+        const t = Math.round(performance.now() - startAtMs);
+        setStreamLogs((prev) => [...prev, { type: "done", t }]);
       }
     } catch (error) {
       console.error("Evaluation error:", error);
@@ -419,6 +514,69 @@ export default function MassEval() {
                 <div className="error">{response}</div>
               )}
             </div>
+          </div>
+          <div className="form-group" style={{ marginTop: "12px" }}>
+            <label style={{ display: "flex", alignItems: "center", gap: 8 }}>
+              <input
+                type="checkbox"
+                checked={debugStreaming}
+                onChange={(e) => setDebugStreaming(e.target.checked)}
+              />
+              Enable streaming debug
+            </label>
+            {debugStreaming && (
+              <div style={{ marginTop: 8 }}>
+                <label>
+                  Per-chunk delay (ms):
+                  <input
+                    type="number"
+                    min="0"
+                    step="10"
+                    value={slowDelayMs}
+                    onChange={(e) =>
+                      setSlowDelayMs(parseInt(e.target.value || "0", 10))
+                    }
+                    style={{ marginLeft: 8, width: 100 }}
+                  />
+                </label>
+                <div
+                  style={{
+                    marginTop: 8,
+                    maxHeight: 200,
+                    overflow: "auto",
+                    fontFamily:
+                      "ui-monospace, SFMono-Regular, Menlo, monospace",
+                    fontSize: 12,
+                    border: "1px solid #ddd",
+                    padding: 8,
+                    background: "#fafafa",
+                  }}
+                >
+                  {streamLogs.length === 0 && <div>No streaming logs yet.</div>}
+                  {streamLogs.map((log, idx) => (
+                    <div key={idx}>
+                      {log.type === "headers" && (
+                        <div>
+                          <strong>[0ms] headers</strong>{" "}
+                          {JSON.stringify(log.headers)}
+                        </div>
+                      )}
+                      {log.type === "chunk" && (
+                        <div>
+                          <strong>[{log.t}ms] chunk</strong> bytes={log.bytes}{" "}
+                          preview="{log.preview}"
+                        </div>
+                      )}
+                      {log.type === "done" && (
+                        <div>
+                          <strong>[{log.t}ms] done</strong>
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </div>
