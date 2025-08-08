@@ -16,13 +16,24 @@ export default function MassEval() {
   );
   const [content, setContent] = useState("");
   const [response, setResponse] = useState("");
+  const [maxTokens, setMaxTokens] = useState(20000);
   const [isLoading, setIsLoading] = useState(false);
   const [responseType, setResponseType] = useState("");
 
   // Streaming debug controls
-  const [debugStreaming, setDebugStreaming] = useState(false);
+  const [debugStreaming, setDebugStreaming] = useState(true);
   const [slowDelayMs, setSlowDelayMs] = useState(0);
   const [streamLogs, setStreamLogs] = useState([]);
+  const [showReasoning, setShowReasoning] = useState(true);
+  const [rawSseLines, setRawSseLines] = useState([]);
+
+  const copyToClipboard = async (text) => {
+    try {
+      await navigator.clipboard.writeText(text || "");
+    } catch (err) {
+      console.error("clipboard copy failed", err);
+    }
+  };
 
   // Collapsible section states
   const [isSystemPromptCollapsed, setIsSystemPromptCollapsed] = useState(false);
@@ -190,6 +201,7 @@ export default function MassEval() {
             2
           )}`,
           toolSchemaSubset: subsetSchema,
+          maxTokens,
         }),
       });
 
@@ -246,6 +258,9 @@ export default function MassEval() {
       }
 
       let carry = "";
+      let contentBuffer = "";
+      let reasoningBuffer = "";
+      let lastReasoningFragment = "";
       while (true) {
         const { done, value } = await reader.read();
         if (done) break;
@@ -265,7 +280,83 @@ export default function MassEval() {
               // will break on next loop when reader is done
               continue;
             }
-            fullResponse += data + "\n";
+            // Keep optional raw capture for debugging
+            if (debugStreaming) {
+              setRawSseLines((prev) => [...prev, data]);
+            }
+
+            // Try to parse JSON event; fallback to raw
+            let parsed;
+            try {
+              parsed = JSON.parse(data);
+            } catch {
+              fullResponse += data + "\n";
+              continue;
+            }
+
+            const choice = parsed?.choices?.[0] || {};
+            const delta = choice.delta || {};
+            const message = choice.message || {};
+
+            const pullArrayContent = (contentVal) => {
+              if (!Array.isArray(contentVal)) return "";
+              return contentVal
+                .map((part) => {
+                  if (!part) return "";
+                  if (typeof part === "string") return part;
+                  if (typeof part.text === "string") return part.text;
+                  if (
+                    typeof part.type === "string" &&
+                    (part.type === "text" || part.type === "output_text") &&
+                    typeof part.text === "string"
+                  ) {
+                    return part.text;
+                  }
+                  return "";
+                })
+                .join("");
+            };
+
+            // Aggregate optional reasoning stream without duplication
+            let reasoningChunk = "";
+            if (
+              Array.isArray(delta.reasoning_details) &&
+              delta.reasoning_details.length
+            ) {
+              reasoningChunk = delta.reasoning_details
+                .map((rd) => (typeof rd?.text === "string" ? rd.text : ""))
+                .join("");
+            } else if (
+              typeof delta.reasoning === "string" &&
+              delta.reasoning.length
+            ) {
+              reasoningChunk = delta.reasoning;
+            }
+            if (reasoningChunk && reasoningChunk !== lastReasoningFragment) {
+              reasoningBuffer += reasoningChunk;
+              lastReasoningFragment = reasoningChunk;
+            }
+
+            // Aggregate content
+            let contentPiece = "";
+            if (typeof delta.content === "string") contentPiece = delta.content;
+            else if (typeof message.content === "string")
+              contentPiece = message.content;
+            else if (typeof delta.text === "string") contentPiece = delta.text;
+            if (!contentPiece) {
+              contentPiece =
+                pullArrayContent(delta.content) ||
+                pullArrayContent(message.content);
+            }
+            if (contentPiece) {
+              contentBuffer += contentPiece;
+            }
+
+            // Render joined result
+            fullResponse = contentBuffer;
+            if (showReasoning && reasoningBuffer) {
+              fullResponse += `\n\n---\nREASONING (streamed):\n${reasoningBuffer}`;
+            }
           }
         } else {
           fullResponse += text;
@@ -339,6 +430,20 @@ export default function MassEval() {
                 Deepseek R1
               </option>
             </select>
+          </div>
+          <div className="form-group" style={{ marginTop: 8 }}>
+            <label htmlFor="max-tokens">Max response tokens:</label>
+            <input
+              id="max-tokens"
+              type="number"
+              min={256}
+              step={256}
+              value={maxTokens}
+              onChange={(e) =>
+                setMaxTokens(parseInt(e.target.value || "0", 10) || 0)
+              }
+              style={{ marginLeft: 8, width: 140 }}
+            />
           </div>
         </div>
 
@@ -514,6 +619,15 @@ export default function MassEval() {
                 <div className="error">{response}</div>
               )}
             </div>
+            <div style={{ marginTop: 8 }}>
+              <button
+                className="button primary copy-button"
+                type="button"
+                onClick={() => copyToClipboard(response)}
+              >
+                Copy response
+              </button>
+            </div>
           </div>
           <div className="form-group" style={{ marginTop: "12px" }}>
             <label style={{ display: "flex", alignItems: "center", gap: 8 }}>
@@ -574,6 +688,34 @@ export default function MassEval() {
                       )}
                     </div>
                   ))}
+                </div>
+                <div style={{ marginTop: 12 }}>
+                  <label>Raw stream (data: lines)</label>
+                  <textarea
+                    readOnly
+                    rows={8}
+                    value={(rawSseLines && rawSseLines.length
+                      ? rawSseLines.join("\n")
+                      : ""
+                    ).toString()}
+                    style={{
+                      width: "100%",
+                      fontFamily:
+                        "ui-monospace, SFMono-Regular, Menlo, monospace",
+                      fontSize: 12,
+                    }}
+                  />
+                  <div style={{ marginTop: 8 }}>
+                    <button
+                      className="button primary copy-button"
+                      type="button"
+                      onClick={() =>
+                        copyToClipboard((rawSseLines || []).join("\n"))
+                      }
+                    >
+                      Copy debug stream
+                    </button>
+                  </div>
                 </div>
               </div>
             )}

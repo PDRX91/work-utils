@@ -3,8 +3,14 @@ export const dynamic = "force-dynamic";
 
 export async function POST(request) {
   try {
-    const { model, systemPrompt, rulesList, prompt, toolSchemaSubset } =
-      await request.json();
+    const {
+      model,
+      systemPrompt,
+      rulesList,
+      prompt,
+      toolSchemaSubset,
+      maxTokens,
+    } = await request.json();
     const apiKey = process.env.OPENROUTER_API_KEY;
 
     if (!apiKey) {
@@ -54,6 +60,7 @@ ${JSON.stringify(toolSchemaSubset, null, 2)}
         toolSchemaSubsetKeys: toolSchemaSubset
           ? Object.keys(toolSchemaSubset).length
           : 0,
+        requestedMaxTokens: maxTokens,
       });
     } catch {}
 
@@ -73,11 +80,18 @@ ${JSON.stringify(toolSchemaSubset, null, 2)}
       },
     ];
 
+    const resolvedMaxTokens =
+      typeof maxTokens === "number" &&
+      Number.isFinite(maxTokens) &&
+      maxTokens > 0
+        ? Math.floor(maxTokens)
+        : 8192; // sensible default for large outputs
+
     try {
       console.debug("[evaluate] outbound openrouter payload", {
         model,
         temperature: 0.7,
-        max_tokens: 4000,
+        max_tokens: resolvedMaxTokens,
         stream: true,
         messagesPreview: messages.map((m) => ({
           role: m.role,
@@ -110,7 +124,7 @@ ${JSON.stringify(toolSchemaSubset, null, 2)}
           model,
           messages,
           temperature: 0.7,
-          max_tokens: 4000,
+          max_tokens: resolvedMaxTokens,
           stream: true,
         }),
       }
