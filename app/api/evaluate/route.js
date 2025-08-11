@@ -80,12 +80,10 @@ ${JSON.stringify(toolSchemaSubset, null, 2)}
       },
     ];
 
+    const toNum = (v) => (typeof v === "number" ? v : Number(v));
+    const mt = toNum(maxTokens);
     const resolvedMaxTokens =
-      typeof maxTokens === "number" &&
-      Number.isFinite(maxTokens) &&
-      maxTokens > 0
-        ? Math.floor(maxTokens)
-        : 8192; // sensible default for large outputs
+      Number.isFinite(mt) && mt > 0 ? Math.floor(mt) : 10000;
 
     try {
       console.debug("[evaluate] outbound openrouter payload", {
