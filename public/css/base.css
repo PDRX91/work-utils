@@ -17,6 +17,12 @@ body {
   max-width: 1200px;
 }
 
+.container.mass-eval {
+  margin: 0 auto;
+  padding: 10px;
+  max-width: 1440px;
+}
+
 h1 {
   margin-bottom: 2rem;
   color: #2c3e50;

@@ -35,7 +35,10 @@ export default function LoginPage() {
     // Send magic link with dynamic redirect
     const { error: signInError } = await supabase.auth.signInWithOtp({
       email,
-      options: { emailRedirectTo: `${window.location.origin}${redirectTo}` },
+      options: {
+        shouldCreateUser: false,
+        emailRedirectTo: `${window.location.origin}${redirectTo}`,
+      },
     });
     if (signInError) {
       setError(signInError.message);
